@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExampController;
+use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TypeController;
@@ -60,8 +61,9 @@ Route::controller(SubjectController::class)->prefix('subject')->group(function (
     
     Route::get('/','index');
     Route::post('/add','store');
-    Route::delete('/delete/{id}','destroy');
-    Route::post('/update/{id}','update');
+    Route::get('/show','show');
+    Route::delete('/delete','destroy');
+    Route::post('/update','update');
  
 });
 Route::controller(SectionController::class)->prefix('section')->group(function (){
@@ -72,7 +74,7 @@ Route::controller(SectionController::class)->prefix('section')->group(function (
     Route::post('/update/{id}','update');
  
 });
-Route::controller(ProgramController::class)->prefix('profram')->group(function (){
+Route::controller(ProgramController::class)->prefix('program')->group(function (){
     
     Route::get('/','index');
     Route::post('/add','store');
@@ -88,6 +90,14 @@ Route::controller(TypeController::class)->prefix('type')->group(function (){
     Route::post('/update/{id}','update');
     Route::post('/assing_section_to_type','assing_section_to_type');
  
+});
+Route::controller(LessonController::class)->prefix('lesson')->group(function (){
+    
+    Route::get('/','index');
+    Route::post('/add','store');
+    Route::delete('/delete','destroy');
+    Route::post('/update','update');
+   
 });
 
 Route::controller(ExampController::class)->prefix('examp')->group(function (){
