@@ -36,12 +36,10 @@ public function store(Request $request){
            'activity' => 'string|required',
            'text' => 'string|required',
            'subject_id' => 'integer|exists:subjects,id',
-           'image' => 'file|required|mimetypes:image/jpeg,image/png,image/gif,image/svg+xml,image/webp,application/wbmp',
+           'image' => 'string|required'
 
         ]);
-        $validatealesson->sometimes('image', 'required|mimetypes:image/vnd.wap.wbmp', function ($input) {
-            return $input->file('image') !== null && $input->file('image')->getClientOriginalExtension() === 'wbmp';
-        });
+       
     
 
         if($validatealesson->fails()){
@@ -51,14 +49,14 @@ public function store(Request $request){
                 'errors' => $validatealesson->errors()
             ], 422);
         }
-        if($request->hasFile('image') and $request->file('image')->isValid()){
-            $image= $this->store_image($request->file('image')); 
-        }
+         
+         
+        
         $lesson = lesson::create(array_merge(
             $validatealesson->validated()
             
             ));
-        $lesson->image=$image;  
+        $lesson->image=$this->upLoadImage($request->image);  
         $subject=subject::find($request->subject_id);
         $lesson->subject()->associate($subject);    
         $result=$lesson->save();
@@ -152,8 +150,14 @@ public function update(Request $request){
         
         $validatelesson = Validator::make($request->all(), [
             'id'=>'required|integer|exists:lessons,id',
-            'name' => 'nullable|string',
+           
+            'name' => 'nullable|string|unique:lessons',
             'description' => 'nullable|string',
+            'activity' => 'nullable|string',
+            'text' => 'nullable|string',
+            'subject_id' => 'nullable|integer|exists:subjects,id',
+            'image' => 'nullable|string'
+           
           ]);
        
         if($validatelesson->fails()){
@@ -166,16 +170,17 @@ public function update(Request $request){
         $lesson=lesson::find($request->id);
         if($lesson){  
             $lesson->update($validatelesson->validated());
-            if($request->hasFile('image') and $request->file('image')->isValid()){
+            if($request->image!=null){
                 if($lesson->image !=null){
                     $this->deleteImage($lesson->image);
                 }
-                $lesson->image = $this->store_image($request->file('image')); 
+                $lesson->image = $this->upLoadImage($request->image); 
             }
           
            $result= $lesson->save();
             
-           if($result){ return response()->json(
+           if($result){
+             return response()->json(
                  [
                     'status' => true,
                     'message' =>   'تم تعديل البيانات  بنجاح', 'data'=> $lesson,
@@ -201,14 +206,16 @@ public function update(Request $request){
   
     
 }
-public function deleteImage( $url){
+public function deleteImage($url){
+ 
     // Get the full path to the image
    
     $fullPath =$url;
      
     $parts = explode('/',$fullPath,5);
+   
     $fullPath = public_path($parts[3].'/'.$parts[4]);
-    
+
     // Check if the image file exists and delete it
     if (file_exists($fullPath)) {
         unlink($fullPath);
@@ -217,18 +224,16 @@ public function deleteImage( $url){
      }
      else return false;
 }
-public function store_image( $file){
-    $extension = $file->getClientOriginalExtension();
-       
-    $imageName = uniqid() . '.' .$extension;
-    $file->move(public_path('lessons'), $imageName);
-
-    // Get the full path to the saved image
-    $imagePath = asset('lessons/' . $imageName);
-            
-     
-   
-   return $imagePath;
-
+ 
+ 
+public function upLoadImage($photo){
+    $file = base64_decode($photo);
+    $png_url = uniqid().".png";
+    $path='lessons/'.$png_url;
+    $success = file_put_contents($path, $file);
+    $url  = asset('lessons/'. $png_url);
+    return    $url;
+      
+    
 }
 }

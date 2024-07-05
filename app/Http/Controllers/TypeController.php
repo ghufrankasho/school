@@ -12,9 +12,20 @@ class TypeController extends Controller
 {
 public function index(){
         $types=Type::with('sections')->get();
-        return response()->json(
-            $types
-            ,200);
+        if($types){
+            return response()->json(
+                [
+                      'status' => true,
+                      'message' => 'تم الحصول على البيانات بنجاح', 
+                      'data'=> $types,
+                  ],200);}
+             else{
+                  return response()->json(
+                          [  'status' => false,
+                          'message' => 'حدث خطأ أثناء جلب البيانات',
+                          'data' => null],
+                          422);
+                  }
 }
 public function store(Request $request){
     
@@ -44,14 +55,21 @@ public function store(Request $request){
             
         $result=$type->save();
        if ($result){
-           
-            return response()->json(
-             'تم أضافة البيانات  بنجاح'
-             , 201);
-            }
-       else{
-            return response()->json('حدث خطأ أثناء أضافة البيانات', 422);
-            }
+        return response()->json(
+            [
+                'status' => true,
+                'message' => 'تم أضافة البيانات  بنجاح', 
+                'data'=> $type,
+            ]
+         , 201);
+        }
+   else{
+        return response()->json(
+            [  'status' => false,
+            'message' => 'حدث خطأ أثناء أضافة البيانات',
+            'data' => null],
+            422);
+        }
 
     }
     catch (\Throwable $th) {
@@ -64,11 +82,11 @@ public function store(Request $request){
    
     
 }
-public function destroy($id){
+public function destroy(Request $request){
     try {  
          
-        $input = [ 'id' =>$id ];
-        $validate = Validator::make( $input,
+      
+        $validate = Validator::make( $request->all(),
             ['id'=>'required|integer|exists:types,id']);
         if($validate->fails()){
         return response()->json([
@@ -77,7 +95,7 @@ public function destroy($id){
            'errors' => $validate->errors()
         ], 422);}
       
-        $type=type::find($id);
+        $type=type::find($request->id);
      
        
       if($type){ 
@@ -91,12 +109,20 @@ public function destroy($id){
             $result= $type->delete();
         if($result){ 
             return response()->json(
-            ' تم حذف البيانات بنجاح'
-            , 200);
-        }
-        }
-
-        return response()->json(null, 422);
+                [
+                     'status' => true,
+                     'message' =>' تم حذف البيانات بنجاح', 
+                     'data'=> $result,
+                 ], 200);
+              
+         }
+         }
+ 
+         return response()->json(    
+             [  'status' => false,
+             'message' => 'حدث خطأ أثناء حذف البيانات',
+             'data' => null],
+             422);
     }
     catch (ValidationException $e) {
         return response()->json(['errors' => $e->errors()], 422);
@@ -105,25 +131,17 @@ public function destroy($id){
         return response()->json(['message' => 'An error occurred while deleting the type.'], 500);
     }
 }
-public function update(Request $request, $id){
+public function update(Request $request){
     try{
-        $input = [ 'id' =>$id ];
-        $validate = Validator::make( $input,
-        ['id'=>'required|integer|exists:types,id']);
-        if($validate->fails()){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'خطأ في التحقق',
-                    'errors' => $validate->errors()
-                ], 422);
-            }
+     
             
-        $type=type::find($id);
+        
         
         $validatetype = Validator::make($request->all(), [
             'name' => 'nullable|string',
             'description' => 'nullable|string',
             'total_amount' => 'nullable|integer',
+            'id'=>'required|integer|exists:types,id'
           ]);
        
         if($validatetype->fails()){
@@ -133,21 +151,27 @@ public function update(Request $request, $id){
                 'errors' => $validatetype->errors()
             ], 422);
         }
+        $type=type::find($request->id);
         if($type){  
             $type->update($validatetype->validated());
           
-            $type->save();
+            $result= $type->save();
             
-            return response()->json(
-                'تم تعديل البيانات  بنجاح'
-                , 200);
-        }
-        
-        return response()->json([
-            'status' => false,
-            'message' =>  'فشلت عملية التعديل ',
-            'data'=> null
-            ], 422);
+            if($result){
+              return response()->json(
+                  [
+                     'status' => true,
+                     'message' =>   'تم تعديل البيانات  بنجاح', 'data'=> $type,
+                 ], 200);}
+              
+           
+         }
+         
+         return response()->json([
+             'status' => false,
+             'message' =>  'فشلت عملية التعديل ',
+             'data'=> null
+             ], 422);
         
 
     }

@@ -10,9 +10,22 @@ class SectionController extends Controller
 {
 public function index(){
         $sections=section::get();
-        return response()->json(
-            $sections
-            ,200);
+        if( $sections){
+       return response()->json(
+                [
+                    'status' => true,
+                    'message' => "تم الحصول على البيانات بنجاح", 
+                    'data'=> $sections,
+                ]
+             , 200);
+            }
+       else{
+            return response()->json(
+                [  'status' => false,
+                'message' => ' حدث خطأ الحصول على البيانات' ,
+                'data' => null],
+                422);
+            }
 }
 public function store(Request $request){
     
@@ -42,12 +55,20 @@ public function store(Request $request){
         $result=$section->save();
        if ($result){
            
-            return response()->json(
-             'تم أضافة البيانات  بنجاح'
+           return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'تم أضافة البيانات  بنجاح', 
+                    'data'=> $section,
+                ]
              , 201);
             }
        else{
-            return response()->json('حدث خطأ أثناء أضافة البيانات', 422);
+            return response()->json(
+                [  'status' => false,
+                'message' => 'حدث خطأ أثناء أضافة البيانات',
+                'data' => null],
+                422);
             }
 
     }
@@ -61,11 +82,11 @@ public function store(Request $request){
    
     
 }
-public function destroy($id){
+public function destroy(Request $request){
     try {  
          
-        $input = [ 'id' =>$id ];
-        $validate = Validator::make( $input,
+       
+        $validate = Validator::make( $request->all(),
             ['id'=>'required|integer|exists:sections,id']);
         if($validate->fails()){
         return response()->json([
@@ -74,9 +95,9 @@ public function destroy($id){
            'errors' => $validate->errors()
         ], 422);}
       
-        $section=section::find($id);
+        $section=section::find( $request->id);
      
-       
+   
       if($section){ 
             $types=$section->types()->get();
             if($types){
@@ -86,14 +107,22 @@ public function destroy($id){
                 }
             }
             $result= $section->delete();
-        if($result){ 
-            return response()->json(
-            ' تم حذف البيانات بنجاح'
-            , 200);
-        }
+                if($result){ 
+               return response()->json(
+                       [
+                            'status' => true,
+                            'message' =>' تم حذف البيانات بنجاح', 
+                            'data'=> $result,
+                        ], 200);
+                     
+                }
         }
 
-        return response()->json(null, 422);
+        return response()->json(    
+            [  'status' => false,
+            'message' => 'حدث خطأ أثناء حذف البيانات',
+            'data' => null],
+            422);
     }
     catch (ValidationException $e) {
         return response()->json(['errors' => $e->errors()], 422);
@@ -102,22 +131,15 @@ public function destroy($id){
         return response()->json(['message' => 'An error occurred while deleting the section.'], 500);
     }
 }
-public function update(Request $request, $id){
+public function update(Request $request){
     try{
-        $input = [ 'id' =>$id ];
-        $validate = Validator::make( $input,
-        ['id'=>'required|integer|exists:sections,id']);
-        if($validate->fails()){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'خطأ في التحقق',
-                    'errors' => $validate->errors()
-                ], 422);
-            }
+         
+      
             
-        $section=section::find($id);
+       
         
         $validatesection = Validator::make($request->all(), [
+            'id'=>'required|integer|exists:sections,id',
             'name' => 'nullable|string',
             'description' => 'nullable|string',
           ]);
@@ -129,21 +151,28 @@ public function update(Request $request, $id){
                 'errors' => $validatesection->errors()
             ], 422);
         }
+        $section=section::find($request->id);
         if($section){  
             $section->update($validatesection->validated());
           
-            $section->save();
+            $result=  $section->save();
             
-            return response()->json(
-                'تم تعديل البيانات  بنجاح'
-                , 200);
-        }
-        
-        return response()->json([
-            'status' => false,
-            'message' =>  'فشلت عملية التعديل ',
-            'data'=> null
-            ], 422);
+            if($result){
+                 return response()->json(
+                [
+                   'status' => true,
+                   'message' =>   'تم تعديل البيانات  بنجاح',
+                    'data'=> $result,
+               ], 200);}
+            
+         
+       }
+       
+       return response()->json([
+           'status' => false,
+           'message' =>  'فشلت عملية التعديل ',
+           'data'=> null
+           ], 422);
         
 
     }

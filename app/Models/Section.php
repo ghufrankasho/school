@@ -9,6 +9,7 @@ class Section extends Model
 {
     use HasFactory;
     public $fillable=['description','name'];
+    
     public function types(){
         return $this->belongsToMany(Type::class);
     }
