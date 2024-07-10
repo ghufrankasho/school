@@ -41,7 +41,8 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     Route::get('/','index');
    
     Route::post('/add','store');
-    Route::post('/delete','destroy');
+    Route::get('/block','block');
+    Route::get('/delete','destroy');
     Route::post('/update','update');
     // route belongto account
     
@@ -53,7 +54,7 @@ Route::controller(TeacherController::class)->prefix('teacher')->group(function (
     Route::get('/','index');
    
     Route::post('/add','store');
-    Route::post('/delete','destroy');
+    Route::get('/delete','destroy');
     Route::post('/update','update');
    
 });
@@ -62,7 +63,7 @@ Route::controller(SubjectController::class)->prefix('subject')->group(function (
     Route::get('/','index');
     Route::post('/add','store');
     Route::get('/show','show');
-    Route::post('/delete','destroy');
+    Route::get('/delete','destroy');
     Route::post('/update','update');
  
 });
@@ -70,7 +71,7 @@ Route::controller(SectionController::class)->prefix('section')->group(function (
     
     Route::get('/','index');
     Route::post('/add','store');
-    Route::post('/delete','destroy');
+    Route::get('/delete','destroy');
     Route::post('/update','update');
  
 });
@@ -78,7 +79,7 @@ Route::controller(ProgramController::class)->prefix('program')->group(function (
     
     Route::get('/','index');
     Route::post('/add','store');
-    Route::post('/delete','destroy');
+    Route::get('/delete','destroy');
     Route::post('/update','update');
  
 });
@@ -86,7 +87,7 @@ Route::controller(TypeController::class)->prefix('type')->group(function (){
     
     Route::get('/','index');
     Route::post('/add','store');
-    Route::post('/delete','destroy');
+    Route::get('/delete','destroy');
     Route::post('/update','update');
     Route::post('/assing_section_to_type','assing_section_to_type');
  
@@ -95,7 +96,7 @@ Route::controller(LessonController::class)->prefix('lesson')->group(function (){
     
     Route::get('/','index');
     Route::post('/add','store');
-    Route::post('/delete','destroy');
+    Route::get('/delete','destroy');
     Route::post('/update','update');
    
 });
@@ -104,7 +105,7 @@ Route::controller(ExampController::class)->prefix('examp')->group(function (){
     
     Route::get('/','index');
     Route::post('/add','store');
-    Route::post('/delete','destroy');
+    Route::get('/delete','destroy');
     Route::post('/update','update');
  
  

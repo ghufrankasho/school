@@ -14,9 +14,54 @@ class UserController extends Controller
 {
     public function index(){
         $users=User::get();
-        return response()->json(
-            $users
-            ,200);
+        if($users){
+            return response()->json(
+                [
+                      'status' => true,
+                      'message' => 'تم الحصول على البيانات بنجاح', 
+                      'data'=> $users,
+                  ],200);
+                }
+             else{
+                  return response()->json(
+                          [  'status' => false,
+                          'message' => 'حدث خطأ أثناء جلب البيانات',
+                          'data' => null],
+                          422);
+                  }
+    }
+    public function block(Request $request){
+        
+        
+        $validate = Validator::make( $request->all(),
+            ['id'=>'required|integer|exists:users,id']);
+        if($validate->fails()){
+        return response()->json([
+           'status' => false,
+           'message' => 'خطأ في التحقق',
+           'errors' => $validate->errors()
+        ], 422);}
+      
+        $user=User::find($request->id);
+        if($user){
+            $user->block=true;
+            $result=$user->save();
+            if($result){
+            return response()->json(
+                [
+                      'status' => true,
+                      'message' => 'تم حظر المستخدم بنجاح', 
+                      'data'=> $user,
+                  ],200);
+                }
+            }
+             else{
+                  return response()->json(
+                          [  'status' => false,
+                          'message' => 'حدث خطأ أثناء  حظر المستخدم',
+                          'data' => null],
+                          422);
+                  }
     }
     public function store(Request $request){
         
@@ -31,12 +76,9 @@ class UserController extends Controller
                'phone' => 'string|required',
                'description' => 'string|required',
                'account_id' => 'integer|exists:accounts,id|unique:users',
-               'image' => 'file|required|mimetypes:image/jpeg,image/png,image/gif,image/svg+xml,image/webp,application/wbmp',
-
+              'image' => 'string|required'
             ]);
-            $validateauser->sometimes('image', 'required|mimetypes:image/vnd.wap.wbmp', function ($input) {
-                return $input->file('image') !== null && $input->file('image')->getClientOriginalExtension() === 'wbmp';
-            });
+           
 
             if($validateauser->fails()){
                 return response()->json([
@@ -48,10 +90,7 @@ class UserController extends Controller
 
            
              
-                
-            if($request->hasFile('image') and $request->file('image')->isValid()){
-                $image= $this->store_image($request->file('image')); 
-            }
+            $image= $this->upLoadImage($request->image); 
           
             $user = User::create(array_merge(
                 $validateauser->validated()
@@ -62,15 +101,24 @@ class UserController extends Controller
             $account=Account::find($request->account_id);
             $user->account()->associate($account);
             $result=$user->save();
-           if ($result){
-               
-                return response()->json(
-                 'تم أضافة بيانات البروفايل بنجاح'
-                 , 201);
-                }
-           else{
-                return response()->json('حدث خطأ أثناء أضافة البيانات', 422);
-                }
+            
+       if ($result){
+           
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'تم أضافة البيانات  بنجاح', 
+                    'data'=> $user,
+                ]
+             , 201);
+            }
+       else{
+            return response()->json(
+                [  'status' => false,
+                'message' => 'حدث خطأ أثناء أضافة البيانات',
+                'data' => null],
+                422);
+            }
 
         }
         catch (\Throwable $th) {
@@ -83,11 +131,10 @@ class UserController extends Controller
        
         
     }
-    public function destroy($id){
+    public function destroy(Request $request){
         try {  
-             
-            $input = [ 'id' =>$id ];
-            $validate = Validator::make( $input,
+            
+            $validate = Validator::make( $request->all(),
                 ['id'=>'required|integer|exists:users,id']);
             if($validate->fails()){
             return response()->json([
@@ -96,7 +143,7 @@ class UserController extends Controller
                'errors' => $validate->errors()
             ], 422);}
           
-            $user=User::find($id);
+            $user=User::find($request->id);
          
            
           if($user){ 
@@ -107,18 +154,29 @@ class UserController extends Controller
                 $account=$user->account()->first();
                  
                 if($account){
-                    $user->account()->dissociate( $account);
+                    $result=$user->account()->dissociate($account);
+                    $user->save();
                     $account->delete();
+                     
                 }   
                 $result= $user->delete();
-            if($result){ 
+            if($result){
+                 
                 return response()->json(
-                ' تم حذف بيانات البروفايل بنجاح'
-                , 200);
-            }
-            }
-
-            return response()->json(null, 422);
+                    [
+                         'status' => true,
+                         'message' =>' تم حذف البيانات بنجاح', 
+                         'data'=> $result,
+                     ], 200);
+                  
+             }
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ أثناء حذف البيانات',
+                    'data' => null],
+                 422);
         }
         catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
@@ -127,32 +185,20 @@ class UserController extends Controller
             return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
         }
     }
-    public function update(Request $request, $id){
+    public function update(Request $request){
         try{
-            $input = [ 'id' =>$id ];
-            $validate = Validator::make( $input,
-            ['id'=>'required|integer|exists:users,id']);
-            if($validate->fails()){
-                    return response()->json([
-                        'status' => false,
-                        'message' => 'خطأ في التحقق',
-                        'errors' => $validate->errors()
-                    ], 422);
-                }
-                
-            $user=User::find($id);
             
+           
             $validateuser = Validator::make($request->all(), [
+                'id'=>'required|integer|exists:users,id',
                 'name' => 'nullable|string',
                 'email'=>'nullable|string|email|unique:users',
                 'address' => 'nullable|string',
                 'phone' => 'nullable|string',
                 'description' => 'nullable|string',
-                'image' => 'nullable|file|mimetypes:image/jpeg,image/png,image/gif,image/svg+xml,image/webp,application/wbmp',
+                'image' => 'nullable|string'
              ]);
-            $validateuser->sometimes('image', 'mimetypes:image/vnd.wap.wbmp', function ($input) {
-                return $input->file('image') !== null && $input->file('image')->getClientOriginalExtension() === 'wbmp';
-            });
+             
             
             if($validateuser->fails()){
                 return response()->json([
@@ -161,29 +207,35 @@ class UserController extends Controller
                     'errors' => $validateuser->errors()
                 ], 422);
             }
+            $user=User::find($request->id);
+            
             if($user){  
                 $user->update($validateuser->validated());
-                if($request->hasFile('image') and $request->file('image')->isValid()){
-                    if($user->image !=null){
+                if($request->image != null){
+                    if($user->image != null){
                         $this->deleteImage($user->image);
                     }
-                    $user->image = $this->store_image($request->file('image')); 
-                }
-    
-                
-                
-                $user->save();
-                
-                return response()->json(
-                    'تم تعديل بيانات المستخدم بنجاح'
-                    , 200);
-            }
+                    $user->image=$this->upLoadImage($request->image); 
+
+                } 
+                $result= $user->save();
             
-            return response()->json([
-                'status' => false,
-                'message' =>  'فشلت عملية التعديل ',
-                'data'=> null
-                ], 422);
+                if($result){
+                  return response()->json(
+                      [
+                         'status' => true,
+                         'message' =>   'تم تعديل البيانات  بنجاح',
+                         'data'=> $user,
+                     ], 200);}
+                  
+               
+             }
+             
+             return response()->json([
+                 'status' => false,
+                 'message' =>  'فشلت عملية التعديل ',
+                 'data'=> null
+                 ], 422);
             
 
         }
@@ -196,14 +248,16 @@ class UserController extends Controller
       
         
     }
-    public function deleteImage( $url){
+    public function deleteImage($url){
+ 
         // Get the full path to the image
        
         $fullPath =$url;
          
         $parts = explode('/',$fullPath,5);
+       
         $fullPath = public_path($parts[3].'/'.$parts[4]);
-        
+    
         // Check if the image file exists and delete it
         if (file_exists($fullPath)) {
             unlink($fullPath);
@@ -212,19 +266,17 @@ class UserController extends Controller
          }
          else return false;
     }
-    public function store_image( $file){
-        $extension = $file->getClientOriginalExtension();
-           
-        $imageName = uniqid() . '.' .$extension;
-        $file->move(public_path('users'), $imageName);
-
-        // Get the full path to the saved image
-        $imagePath = asset('users/' . $imageName);
-                
-         
-       
-       return $imagePath;
-
+     
+     
+    public function upLoadImage($photo){
+        $file = base64_decode($photo);
+        $png_url = uniqid().".png";
+        $path='users/'.$png_url;
+        $success = file_put_contents($path, $file);
+        $url  = asset('users/'. $png_url);
+        return    $url;
+          
+        
     }
     
 }

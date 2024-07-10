@@ -18,6 +18,7 @@ class Users extends Migration
             $table->string('name');
             $table->string('image')->default(null);
             $table->string('phone')->default(null);
+            $table->boolean('block')->default(false);
             $table->string('email')->unique();
             $table->string('description')->default(null);
             $table->foreignId('account_id')->constrained('accounts','id');
