@@ -27,6 +27,39 @@ public function index(){
                           422);
                   }
 }
+public function block(Request $request){
+        
+        
+    $validate = Validator::make( $request->all(),
+        ['id'=>'required|integer|exists:teachers,id']);
+    if($validate->fails()){
+    return response()->json([
+       'status' => false,
+       'message' => 'خطأ في التحقق',
+       'errors' => $validate->errors()
+    ], 422);}
+  
+    $teacher=teacher::find($request->id);
+    if($teacher){
+        $teacher->block=true;
+        $result=$teacher->save();
+        if($result){
+        return response()->json(
+            [
+                  'status' => true,
+                  'message' => 'تم حظر المستخدم بنجاح', 
+                  'data'=> $teacher,
+              ],200);
+            }
+        }
+         else{
+              return response()->json(
+                      [  'status' => false,
+                      'message' => 'حدث خطأ أثناء  حظر المستخدم',
+                      'data' => null],
+                      422);
+              }
+}
 public function store(Request $request){
     
     try{

@@ -52,7 +52,7 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
 Route::controller(TeacherController::class)->prefix('teacher')->group(function (){
     
     Route::get('/','index');
-   
+    Route::get('/block','block');
     Route::post('/add','store');
     Route::get('/delete','destroy');
     Route::post('/update','update');
