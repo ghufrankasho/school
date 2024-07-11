@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Teacher extends Model
 {
     use HasFactory;
+    public $fillable=['description','email','phone','name','specilty'];
     public function programlesson(){
         return $this->hasOne(ProgramLesson::class);
     }

@@ -11,9 +11,21 @@ class TeacherController extends Controller
 {
 public function index(){
         $teachers=teacher::get();
-        return response()->json(
-        $teachers
-        ,200);
+        if($teachers){
+            return response()->json(
+                [
+                      'status' => true,
+                      'message' => 'تم الحصول على البيانات بنجاح', 
+                      'data'=> $teachers,
+                  ],200);
+                }
+             else{
+                  return response()->json(
+                          [  'status' => false,
+                          'message' => 'حدث خطأ أثناء جلب البيانات',
+                          'data' => null],
+                          422);
+                  }
 }
 public function store(Request $request){
     
@@ -27,12 +39,9 @@ public function store(Request $request){
             'phone' => 'string|required',
             'description' => 'string|required',
             'account_id' => 'integer|exists:accounts,id|unique:teachers',
-            'image' => 'file|required|mimetypes:image/jpeg,image/png,image/gif,image/svg+xml,image/webp,application/wbmp',
-
+             'image' => 'string|required'
          ]);
-         $validateateacher->sometimes('image', 'required|mimetypes:image/vnd.wap.wbmp', function ($input) {
-             return $input->file('image') !== null && $input->file('image')->getClientOriginalExtension() === 'wbmp';
-         });
+       
     
 
         if($validateateacher->fails()){
@@ -42,22 +51,31 @@ public function store(Request $request){
                 'errors' => $validateateacher->errors()
             ], 422);
         }
-
+        $image= $this->upLoadImage($request->image); 
+          
         $teacher = teacher::create(array_merge(
             $validateateacher->validated()
             
             ));
+        $teacher->image=$image;
         $account=Account::find($request->account_id);
         $teacher->account()->associate($account);   
         $result=$teacher->save();
        if ($result){
            
             return response()->json(
-             'تم أضافة البيانات  بنجاح'
+                [
+                    'status' => true,
+                    'message' => 'تم أضافة البيانات  بنجاح', 
+                    'data'=> $teacher,
+                ]
              , 201);
             }
        else{
-            return response()->json('حدث خطأ أثناء أضافة البيانات', 422);
+            return response()->json( [  'status' => false,
+            'message' => 'حدث خطأ أثناء أضافة البيانات',
+            'data' => null],
+               422);
             }
 
     }
@@ -71,11 +89,11 @@ public function store(Request $request){
    
     
 }
-public function destroy($id){
+public function destroy(Request $request){
     try {  
          
-        $input = [ 'id' =>$id ];
-        $validate = Validator::make( $input,
+ 
+        $validate = Validator::make( $request->all(),
             ['id'=>'required|integer|exists:teachers,id']);
         if($validate->fails()){
         return response()->json([
@@ -84,7 +102,7 @@ public function destroy($id){
            'errors' => $validate->errors()
         ], 422);}
       
-        $teacher=teacher::find($id);
+        $teacher=teacher::find($request->id);
      
        
       if($teacher){ 
@@ -95,18 +113,29 @@ public function destroy($id){
             $account=$teacher->account()->first();
              
             if($account){
-                $teacher->account()->dissociate( $account);
+                $result=$teacher->account()->dissociate($account);
+                $teacher->save();
                 $account->delete();
             }   
             $result= $teacher->delete();
         if($result){ 
+                   
             return response()->json(
-            ' تم حذف بيانات  بنجاح'
-            , 200);
-        }
-        }
-
-        return response()->json(null, 422);
+                [
+                     'status' => true,
+                     'message' =>' تم حذف البيانات بنجاح', 
+                     'data'=> $result,
+                 ], 200);
+              
+         }
+         }
+ 
+         return response()->json(    
+             [  'status' => false,
+                'message' => 'حدث خطأ أثناء حذف البيانات',
+                'data' => null],
+             422);
+   
     }
     catch (ValidationException $e) {
         return response()->json(['errors' => $e->errors()], 422);
@@ -115,33 +144,23 @@ public function destroy($id){
         return response()->json(['message' => 'An error occurred while deleting the teacher.'], 500);
     }
 }
-public function update(Request $request, $id){
+public function update(Request $request){
     try{
-        $input = [ 'id' =>$id ];
-        $validate = Validator::make( $input,
-        ['id'=>'required|integer|exists:teachers,id']);
-        if($validate->fails()){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'خطأ في التحقق',
-                    'errors' => $validate->errors()
-                ], 422);
-            }
+        
+         
             
-        $teacher=teacher::find($id);
+      
         
         $validateteacher = Validator::make($request->all(), [
             'name' => 'nullable|string',
+            'id'=>'required|integer|exists:teachers,id',
             'email'=>'nullable|string|email|unique:teachers',
             'specilty' => 'nullable|string',
             'phone' => 'nullable|string',
             'description' => 'nullable|string',
-            'image' => 'nullable|file|mimetypes:image/jpeg,image/png,image/gif,image/svg+xml,image/webp,application/wbmp',
+            'image' => 'nullable|string'
          ]);
-        $validateteacher->sometimes('image', 'mimetypes:image/vnd.wap.wbmp', function ($input) {
-            return $input->file('image') !== null && $input->file('image')->getClientOriginalExtension() === 'wbmp';
-        });
-        
+       
         if($validateteacher->fails()){
             return response()->json([
                 'status' => false,
@@ -149,22 +168,28 @@ public function update(Request $request, $id){
                 'errors' => $validateteacher->errors()
             ], 422);
         }
+        $teacher=teacher::find($request->id);
         if($teacher){  
             $teacher->update($validateteacher->validated());
-            if($request->hasFile('image') and $request->file('image')->isValid()){
-                if($teacher->image !=null){
+            if($request->image != null){
+                if($teacher->image != null){
                     $this->deleteImage($teacher->image);
                 }
-                $teacher->image = $this->store_image($request->file('image')); 
-            }
+                $teacher->image=$this->upLoadImage($request->image); 
+
+            } 
 
             
             
-            $teacher->save();
+            $result= $teacher->save();
             
-            return response()->json(
-                'تم تعديل بيانات المستخدم بنجاح'
-                , 200);
+            if($result){
+                return response()->json(
+                    [
+                       'status' => true,
+                       'message' =>   'تم تعديل البيانات  بنجاح',
+                       'data'=> $teacher,
+                   ], 200);}
         }
         
         return response()->json([
@@ -184,14 +209,16 @@ public function update(Request $request, $id){
   
     
 }
-public function deleteImage( $url){
+public function deleteImage($url){
+ 
     // Get the full path to the image
    
     $fullPath =$url;
      
     $parts = explode('/',$fullPath,5);
+   
     $fullPath = public_path($parts[3].'/'.$parts[4]);
-    
+
     // Check if the image file exists and delete it
     if (file_exists($fullPath)) {
         unlink($fullPath);
@@ -200,18 +227,14 @@ public function deleteImage( $url){
      }
      else return false;
 }
-public function store_image( $file){
-    $extension = $file->getClientOriginalExtension();
-       
-    $imageName = uniqid() . '.' .$extension;
-    $file->move(public_path('teachers'), $imageName);
-
-    // Get the full path to the saved image
-    $imagePath = asset('teachers/' . $imageName);
-            
-     
-   
-   return $imagePath;
-
+public function upLoadImage($photo){
+    $file = base64_decode($photo);
+    $png_url = uniqid().".png";
+    $path='teachers/'.$png_url;
+    $success = file_put_contents($path, $file);
+    $url  = asset('teachers/'. $png_url);
+    return    $url;
+      
+    
 }
 }
