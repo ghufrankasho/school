@@ -17,6 +17,6 @@ class Program extends Model
     }
     public function program_lesson()
     {
-        return $this->hasMany(ProgramLesson::class);
+        return $this->hasMany(ProgramLesson::class,'program_id','id');
     }
 }

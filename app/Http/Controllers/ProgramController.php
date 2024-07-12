@@ -5,12 +5,15 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use App\Models\Program;
+use App\Models\ProgramLesson;
+use App\Models\Lesson;
+use App\Models\Teacher;
 use App\Models\TypeSection;
 
 class ProgramController extends Controller
 {
 public function index(){
-        $programs=program::get();
+        $programs=program::with('program_lesson')->get();
         if($programs){
             return response()->json(
                 [
@@ -225,12 +228,10 @@ public function sotre_program_detailes(Request $request){
         
         $validateaprogram = Validator::make($request->all(), 
         [
-           'time' => 'string|required',
-          
-           
+           'time' =>'date_format:H:i',     
            'program_id' => 'integer|required|exists:programs,id',
            'teacher_id' => 'integer|required|exists:teachers,id',
-           'subject_id' => 'integer|required|exists:subjects,id',
+           'lesson_id' => 'integer|required|exists:lessons,id',
            
         ]);
     
@@ -243,27 +244,26 @@ public function sotre_program_detailes(Request $request){
             ], 422);
         }
        
-        $program = program::create(array_merge(
+        $program_lesson = ProgramLesson::create(array_merge(
             $validateaprogram->validated()
             
             ));
            
-        $section_type=TypeSection::find($request->type_section_id); 
+        $lesson=lesson::find($request->lesson_id); 
+        $teacher=teacher::find($request->teacher_id); 
+        $program=program::find($request->program_id); 
+        if($lesson){ $program_lesson->lesson()->associate($lesson); } 
+        if($teacher){ $program_lesson->teacher()->associate($teacher); } 
+        if($program){ $program_lesson->program()->associate($program); } 
         
-        if($section_type){
-            
-            $program->type_section()->associate($section_type);
-             
-             } 
-        
-        $result=$program->save();
+        $result=$program_lesson->save();
         if ($result){
            
             return response()->json(
                 [
                     'status' => true,
                     'message' => 'تم أضافة البيانات  بنجاح', 
-                    'data'=> $program,
+                    'data'=> $program_lesson,
                 ]
              , 200);
             }
@@ -283,5 +283,16 @@ public function sotre_program_detailes(Request $request){
             // "حدث خطأ أثناء أضافة البيانات"
         ], 500);
     }
+}
+public function attach_lessos( $request,$program){
+         
+    // Split the string into an array of category IDs
+     $ids= $request->category_ids;
+     
+     $categoryIdsArray = explode(',', $ids[0]);
+     
+     // Convert the array elements to integers (if needed)
+      $categoryIdsArray = array_map('intval', $categoryIdsArray);
+     $program->subjects()->attach($categoryIdsArray);
 }
 }

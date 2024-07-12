@@ -7,6 +7,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use App\Models\Lesson;
 use App\Models\Subject;
+use App\Models\Type;
 class LessonController extends Controller
 {
 public function index(){
@@ -36,6 +37,7 @@ public function store(Request $request){
            'activity' => 'string|required',
            'text' => 'string|required',
            'subject_id' => 'integer|exists:subjects,id',
+           'type_id' => 'integer|exists:types,id',
            'image' => 'string|required'
 
         ]);
@@ -57,8 +59,11 @@ public function store(Request $request){
             
             ));
         $lesson->image=$this->upLoadImage($request->image);  
+        
         $subject=subject::find($request->subject_id);
-        $lesson->subject()->associate($subject);    
+        if( $subject)$lesson->subject()->associate($subject);  
+        $type=type::find($request->type_id);
+        if( $type)$lesson->type()->associate($type);   
         $result=$lesson->save();
        if ($result){
            
@@ -111,9 +116,16 @@ public function destroy(Request $request){
         } 
          //dissociate lesson from subject
          $subject=$lesson->subject()->first();
-         if($subject){
+        if($subject){
              $lesson->subject()->dissociate($subject);
+             
              }
+         //dissociate lesson from type    
+        $type=$lesson->type()->first();
+        if($type){
+            $lesson->type()->dissociate($type);
+                 
+        }
             $result= $lesson->delete();
         if($result){ 
             return response()->json(
@@ -156,6 +168,7 @@ public function update(Request $request){
             'activity' => 'nullable|string',
             'text' => 'nullable|string',
             'subject_id' => 'nullable|integer|exists:subjects,id',
+            'type_id' => 'nullable|integer|exists:types,id',
             'image' => 'nullable|string'
            
           ]);
@@ -175,6 +188,23 @@ public function update(Request $request){
                     $this->deleteImage($lesson->image);
                 }
                 $lesson->image = $this->upLoadImage($request->image); 
+            }
+            if($request->subject_id != null){
+                 //dissociate lesson from subject
+                $subject=$lesson->subject()->first();
+                if($subject){ $lesson->subject()->dissociate($subject); }
+                //associate lesson with new  subject
+                $subject=subject::find($request->subject_id);
+                if( $subject)$lesson->subject()->associate($subject); 
+                
+            }
+            if($request->type_id !=null){
+                 //dissociate lesson from type    
+                $type=$lesson->type()->first();
+                if($type){ $lesson->type()->dissociate($type);}
+                //associate lesson with new  type
+                $type=type::find($request->type_id);
+                if( $type)$lesson->type()->associate($type);  
             }
           
            $result= $lesson->save();

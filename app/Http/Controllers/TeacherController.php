@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Models\Teacher;
 use App\Models\Account;
+use App\Models\Subject;
 class TeacherController extends Controller
 {
 public function index(){
@@ -72,7 +73,8 @@ public function store(Request $request){
             'phone' => 'string|required',
             'description' => 'string|required',
             'account_id' => 'integer|exists:accounts,id|unique:teachers',
-             'image' => 'string|required'
+            'subject_id' => 'integer|exists:subjects,id',
+            'image' => 'string|required'
          ]);
        
     
@@ -91,8 +93,19 @@ public function store(Request $request){
             
             ));
         $teacher->image=$image;
+        
         $account=Account::find($request->account_id);
-        $teacher->account()->associate($account);   
+        
+        if($account)$teacher->account()->associate($account); 
+         
+        else{   return response()->json( [  'status' => false,
+            'message' => 'حدث خطأ أثناء ربط الاستاذ مع حسابه ',
+            'data' => null],
+               422);
+            } 
+        $subject=subject::find($request->subject_id);
+        if($subject)$teacher->subject()->associate($subject);  
+       
         $result=$teacher->save();
        if ($result){
            
@@ -149,7 +162,15 @@ public function destroy(Request $request){
                 $result=$teacher->account()->dissociate($account);
                 $teacher->save();
                 $account->delete();
-            }   
+            } 
+               //dissociate teacher from subject     
+               $subject=$teacher->subject()->first();
+             
+               if($subject){
+                   $result=$teacher->subject()->dissociate($subject);
+                   $teacher->save();
+                   
+               }   
             $result= $teacher->delete();
         if($result){ 
                    

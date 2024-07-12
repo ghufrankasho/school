@@ -80,6 +80,7 @@ Route::controller(ProgramController::class)->prefix('program')->group(function (
     Route::get('/','index');
     Route::post('/add','store');
     Route::get('/delete','destroy');
+    Route::post('/attach','sotre_program_detailes');
     Route::post('/update','update');
  
 });
