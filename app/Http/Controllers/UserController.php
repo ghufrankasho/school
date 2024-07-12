@@ -154,7 +154,7 @@ class UserController extends Controller
                 $account=$user->account()->first();
                  
                 if($account){
-                    $result=$user->account()->dissociate($account);
+                    $user->account()->dissociate($account);
                     $user->save();
                     $account->delete();
                      

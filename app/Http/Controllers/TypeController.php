@@ -201,24 +201,46 @@ public function assing_section_to_type(Request $request){
         $type=type::find($request->type_id);
        
         $section=section::find($request->section_id);
-       
-        $result=false;
-        
+    
+         
        if($type && $section){
-        $type->sections()->attach($section);
-        return response()->json(
-            "assing section to type successfuly"
-            , 200);
-         
-       }
         
-      
-         
+            $sections=$type->sections()->get();
+            foreach($sections as $sect){
+                if($sect->id == $section->id){
+                    return response()->json(
+                        [  
+                            'status' => false,
+                            'message' => ' ربط الصف مع الشعبة موجود مسبقا',
+                            'data' => null
+                        ],
+                        422); 
+                }
+            }
         
+             $type->sections()->attach($section);
+             $result=$type->save(); 
+            if($result){
+                return response()->json(
+                    [
+                        'status' => true,
+                        'message' => 'تم ربط الصف مع الشعبة  بنجاح', 
+                        'data'=> $type,
+                    ],
+                    200);
+                }
+        }
         
-
-        return response()->json("null", 422);
-    }
+            return response()->json(
+                    [  
+                        'status' => false,
+                        'message' => 'حدث خطأ أثناء ربط الصف مع الشعبة',
+                        'data' => null
+                    ],
+                    422);
+            
+        }
+             
     catch (ValidationException $e) {
         return response()->json(['errors' => $e->errors()], 422);
     } 
@@ -227,4 +249,5 @@ public function assing_section_to_type(Request $request){
          'An error occurred while assing_section_to_type.'], 500);
     }
 }
+
 }

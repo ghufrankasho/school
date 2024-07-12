@@ -11,6 +11,6 @@ class Section extends Model
     public $fillable=['description','name'];
     
     public function types(){
-        return $this->belongsToMany(Type::class);
+        return $this->belongsToMany(Type::class,'type_sections');
     }
 }

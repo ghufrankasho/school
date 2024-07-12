@@ -23,6 +23,7 @@ class Teachers extends Migration
             $table->boolean('block')->default(false);
             $table->string('description')->default(null);
             $table->foreignId('account_id')->constrained('accounts','id');
+            $table->foreignId('subject_id')->constrained('subjects','id');
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class SectionType extends Migration
+class TypeSections extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class SectionType extends Migration
      */
     public function up()
     {
-        Schema::create('section_type', function (Blueprint $table) {
+        Schema::create('type_sections', function (Blueprint $table) {
             $table->id();
             $table->foreignId('type_id')->constrained('types','id');
             $table->foreignId('section_id')->constrained('sections','id');
@@ -29,6 +29,6 @@ class SectionType extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('section_type');
+        Schema::dropIfExists('type_sections');
     }
 }

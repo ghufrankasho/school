@@ -86,10 +86,11 @@ Route::controller(ProgramController::class)->prefix('program')->group(function (
 Route::controller(TypeController::class)->prefix('type')->group(function (){
     
     Route::get('/','index');
+  
     Route::post('/add','store');
     Route::get('/delete','destroy');
     Route::post('/update','update');
-    Route::post('/assing_section_to_type','assing_section_to_type');
+    Route::get('/assing_section_to_type','assing_section_to_type');
  
 });
 Route::controller(LessonController::class)->prefix('lesson')->group(function (){

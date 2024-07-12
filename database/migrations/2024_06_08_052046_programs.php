@@ -17,8 +17,7 @@ class Programs extends Migration
             $table->id();
             $table->string('name');
             $table->string('description')->default(null);
-            $table->date('day')->default(null);
-            $table->foreignId('section_type_id')->constrained('section_type','id');
+            $table->foreignId('type_section_id')->constrained('type_sections','id');
             $table->timestamps();
         });
     }

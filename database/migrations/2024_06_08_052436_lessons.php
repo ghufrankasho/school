@@ -20,6 +20,7 @@ class Lessons extends Migration
             $table->string('image')->default(null);
             $table->string('activity')->default(null);
             $table->string('description')->default(null);
+            $table->foreignId('type_id')->constrained('types','id');
             $table->foreignId('subject_id')->constrained('subjects','id')->onDelete('cascade');
             $table->timestamps();
         });

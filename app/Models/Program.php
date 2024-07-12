@@ -9,11 +9,11 @@ class Program extends Model
 {
     use HasFactory;
     
-    public $fillable=['description','name','day'];
+    public $fillable=['description','name'];
     
-    public function section_type(){
+    public function type_section(){
         
-        return $this->belongsTo(TypeSection::class,'section_type_id','id');
+        return $this->belongsTo(TypeSection::class,'type_section_id','id');
     }
     public function program_lesson()
     {

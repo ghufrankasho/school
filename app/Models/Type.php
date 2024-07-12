@@ -13,7 +13,7 @@ class Type extends Model
     
     public function sections(){
         
-        return $this->belongsToMany(Section::class);
+        return $this->belongsToMany(Section::class,'type_sections');
     }
     public function lessons(){
         

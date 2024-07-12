@@ -11,9 +11,21 @@ class ProgramController extends Controller
 {
 public function index(){
         $programs=program::get();
-        return response()->json(
-            $programs
-            ,200);
+        if($programs){
+            return response()->json(
+                [
+                      'status' => true,
+                      'message' => 'تم الحصول على البيانات بنجاح', 
+                      'data'=> $programs,
+                  ],200);
+                }
+             else{
+                  return response()->json(
+                          [  'status' => false,
+                          'message' => 'حدث خطأ أثناء جلب البيانات',
+                          'data' => null],
+                          422);
+                }
 }
 public function store(Request $request){
     
@@ -21,10 +33,10 @@ public function store(Request $request){
         
         $validateaprogram = Validator::make($request->all(), 
         [
-           'name' => 'string|required|unique:programs',
+           'name' => 'string|required',
            'description' => 'string|required',
-           'day' => 'date|required',
-           'section_type_id' => 'integer|required|exists:section_type',
+           
+           'type_section_id' => 'integer|required|exists:type_sections,id',
            
         ]);
     
@@ -36,23 +48,37 @@ public function store(Request $request){
                 'errors' => $validateaprogram->errors()
             ], 422);
         }
-        
+       
         $program = program::create(array_merge(
             $validateaprogram->validated()
             
             ));
-        $section_type=TypeSection::find($request->section_type_id); 
-        if($section_type) $program->section_type()->associate($section_type);  
+           
+        $section_type=TypeSection::find($request->type_section_id); 
+        
+        if($section_type){
+            
+            $program->type_section()->associate($section_type);
+             
+             } 
         
         $result=$program->save();
-       if ($result){
+        if ($result){
            
             return response()->json(
-             'تم أضافة البيانات  بنجاح'
+                [
+                    'status' => true,
+                    'message' => 'تم أضافة البيانات  بنجاح', 
+                    'data'=> $program,
+                ]
              , 201);
             }
        else{
-            return response()->json('حدث خطأ أثناء أضافة البيانات', 422);
+            return response()->json(
+                [  'status' => false,
+                'message' => 'حدث خطأ أثناء أضافة البيانات',
+                'data' => null],
+                422);
             }
 
     }
@@ -66,33 +92,58 @@ public function store(Request $request){
    
     
 }
-public function destroy($id){
+public function destroy(Request $request){
     try {  
          
-        $input = [ 'id' =>$id ];
-        $validate = Validator::make( $input,
+        
+        $validate = Validator::make( $request->all(),
             ['id'=>'required|integer|exists:programs,id']);
         if($validate->fails()){
+            
         return response()->json([
            'status' => false,
            'message' => 'خطأ في التحقق',
            'errors' => $validate->errors()
         ], 422);}
       
-        $program=program::find($id);
+    $program=program::find($request->id);
      
        
-      if($program){ 
-            
+    if($program){ 
+        // dissociate program from section type 'the class'
+        $section_type=$program->section_type()->first();
+        if($section_type){
+            $program->section_type()->dissociate($section_type);
+            $program->save();
+        }
+        // delete all program data in program_lesson table
+        $program_lessons=$program->program_lesson()->get();
+        
+        foreach($program_lessons as $program_lesson){
+            $program_lesson->program()->dissociate($program);
+            $program_lesson->save();
+            $program_lesson->delete();
+        }
+        
+        
         $result= $program->delete();
-        if($result){ 
+        if($result){
+                 
             return response()->json(
-            ' تم حذف البيانات بنجاح'
-            , 200);
-        }
-        }
-
-        return response()->json(null, 422);
+                [
+                     'status' => true,
+                     'message' =>' تم حذف البيانات بنجاح', 
+                     'data'=> $result,
+                 ], 200);
+              
+         }
+         }
+ 
+         return response()->json(    
+             [  'status' => false,
+                'message' => 'حدث خطأ أثناء حذف البيانات',
+                'data' => null],
+             422);
     }
     catch (ValidationException $e) {
         return response()->json(['errors' => $e->errors()], 422);
@@ -101,26 +152,18 @@ public function destroy($id){
         return response()->json(['message' => 'An error occurred while deleting the program.'], 500);
     }
 }
-public function update(Request $request, $id){
+public function update(Request $request){
     try{
-        $input = [ 'id' =>$id ];
-        $validate = Validator::make( $input,
-        ['id'=>'required|integer|exists:programs,id']);
-        if($validate->fails()){
-                return response()->json([
-                    'status' => false,
-                    'message' => 'خطأ في التحقق',
-                    'errors' => $validate->errors()
-                ], 422);
-            }
-            
-        $program=program::find($id);
+        
+
         
         $validateprogram = Validator::make($request->all(), [
-            'name' => 'nullable|string|unique:programs',
+           
+           'id'=>'required|integer|exists:programs,id',
+           'name' => 'nullable|string|unique:programs',
            'description' => 'nullable|string',
-           'day' => 'nullable|date',
-           'section_type_id' => 'nullable|integer|exists:section_type',
+           
+           'type_section_id' => 'nullable|integer|exists:type_sections,id',
            
           ]);
        
@@ -131,26 +174,32 @@ public function update(Request $request, $id){
                 'errors' => $validateprogram->errors()
             ], 422);
         }
-        
+        $program=program::find($request->id);
         if($program){  
            
             $program->update($validateprogram->validated());
             
-            if($request->section_type_id!=null)
+            if($request->type_section_id!=null)
             {
-                $section_type=TypeSection::find($request->section_type_id); 
+                return 
+                $section_type=TypeSection::find($request->type_section_id); 
                 
                 $current_section_type=$program->section_type()->first();
                 
-                if($current_section_type)$program->section_type()->dissociate($current_section_type);
+                if($current_section_type)$program->section_type()->dissociate($current_section_type->id);
                 
-                if($section_type) $program->section_type()->associate($section_type);
+                if($section_type) $program->section_type()->associate($section_type->id);
             } 
-            $program->save();
+             $result=$program->save();
             
-            return response()->json(
-                'تم تعديل البيانات  بنجاح'
-                , 200);
+            if($result){
+                return response()->json(
+                    [
+                       'status' => true,
+                       'message' =>   'تم تعديل البيانات  بنجاح',
+                       'data'=> $program,
+                   ], 200);
+                }
         }
         
         return response()->json([
