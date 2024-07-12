@@ -10,7 +10,8 @@ class Teacher extends Model
     use HasFactory;
     public $fillable=['description','email','phone','name','specilty'];
     public function programlesson(){
-        return $this->hasOne(ProgramLesson::class);
+        
+        return $this->hasMany(ProgramLesson::class);
     }
     public function account()
     {
@@ -19,6 +20,10 @@ class Teacher extends Model
     public function examps()
     {
         return $this->hasMany(Examp::class);
+    }
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
     }
 
 }

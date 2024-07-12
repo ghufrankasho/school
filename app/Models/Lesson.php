@@ -13,13 +13,15 @@ class Lesson extends Model
     {
         return $this->belongsTo(Subject::class);
     }
-    // public function examps()
-    // {
-    //     return $this->belongsTo(Examp::class);
-    // }
+     
     public function programlesson()
     {
       return $this->hasMany(ProgramLesson::class);
+    }
+
+    public function type()
+    {
+      return $this->belongsTo(Type::class);
     }
     
 }
