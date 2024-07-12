@@ -219,4 +219,69 @@ public function update(Request $request){
   
     
 }
+public function sotre_program_detailes(Request $request){
+    
+    try{
+        
+        $validateaprogram = Validator::make($request->all(), 
+        [
+           'time' => 'string|required',
+          
+           
+           'program_id' => 'integer|required|exists:programs,id',
+           'teacher_id' => 'integer|required|exists:teachers,id',
+           'subject_id' => 'integer|required|exists:subjects,id',
+           
+        ]);
+    
+
+        if($validateaprogram->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'خطأ في التحقق',
+                'errors' => $validateaprogram->errors()
+            ], 422);
+        }
+       
+        $program = program::create(array_merge(
+            $validateaprogram->validated()
+            
+            ));
+           
+        $section_type=TypeSection::find($request->type_section_id); 
+        
+        if($section_type){
+            
+            $program->type_section()->associate($section_type);
+             
+             } 
+        
+        $result=$program->save();
+        if ($result){
+           
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'تم أضافة البيانات  بنجاح', 
+                    'data'=> $program,
+                ]
+             , 200);
+            }
+       else{
+            return response()->json(
+                [  'status' => false,
+                'message' => 'حدث خطأ أثناء أضافة البيانات',
+                'data' => null],
+                422);
+            }
+
+    }
+    catch (\Throwable $th) {
+        return response()->json([
+            'status' => false,
+            'message' =>  $th->getMessage(),
+            // "حدث خطأ أثناء أضافة البيانات"
+        ], 500);
+    }
+}
 }

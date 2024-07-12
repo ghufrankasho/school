@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Program extends Model
 {
     use HasFactory;
-    
+    public $timestamps=true;
     public $fillable=['description','name'];
     
     public function type_section(){
