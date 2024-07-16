@@ -39,7 +39,7 @@ Route::group([  'middleware' => 'api','prefix' => 'auth'], function ($router) {
 Route::controller(UserController::class)->prefix('user')->group(function (){
     
     Route::get('/','index');
-   
+    Route::get('/unblock','unblock');
     Route::post('/add','store');
     Route::get('/block','block');
     Route::get('/delete','destroy');
@@ -53,6 +53,7 @@ Route::controller(TeacherController::class)->prefix('teacher')->group(function (
     
     Route::get('/','index');
     Route::get('/block','block');
+    Route::get('/unblock','unblock');
     Route::post('/add','store');
     Route::get('/delete','destroy');
     Route::post('/update','update');

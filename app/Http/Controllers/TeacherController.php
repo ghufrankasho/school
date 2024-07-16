@@ -61,6 +61,39 @@ public function block(Request $request){
                       422);
               }
 }
+public function unblock(Request $request){
+        
+        
+    $validate = Validator::make( $request->all(),
+        ['id'=>'required|integer|exists:teachers,id']);
+    if($validate->fails()){
+    return response()->json([
+       'status' => false,
+       'message' => 'خطأ في التحقق',
+       'errors' => $validate->errors()
+    ], 422);}
+  
+    $teacher=teacher::find($request->id);
+    if($teacher){
+        $teacher->block=false;
+        $result=$teacher->save();
+        if($result){
+        return response()->json(
+            [
+                  'status' => true,
+                  'message' => 'تم  إلغاء حظر الاستاذ بنجاح', 
+                  'data'=> $teacher,
+              ],200);
+            }
+        }
+         else{
+              return response()->json(
+                      [  'status' => false,
+                      'message' => 'حدث خطأ أثناء  إلغاء حظر الاستاذ',
+                      'data' => null],
+                      422);
+              }
+}
 public function store(Request $request){
     
     try{

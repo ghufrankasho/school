@@ -63,6 +63,39 @@ class UserController extends Controller
                           422);
                   }
     }
+    public function unblock(Request $request){
+        
+        
+        $validate = Validator::make( $request->all(),
+            ['id'=>'required|integer|exists:users,id']);
+        if($validate->fails()){
+        return response()->json([
+           'status' => false,
+           'message' => 'خطأ في التحقق',
+           'errors' => $validate->errors()
+        ], 422);}
+      
+        $user=user::find($request->id);
+        if($user){
+            $user->block=false;
+            $result=$user->save();
+            if($result){
+            return response()->json(
+                [
+                      'status' => true,
+                      'message' => 'تم  إلغاء حظر الطالب بنجاح', 
+                      'data'=> $user,
+                  ],200);
+                }
+            }
+             else{
+                  return response()->json(
+                          [  'status' => false,
+                          'message' => 'حدث خطأ أثناء  إلغاء حظر الطالب',
+                          'data' => null],
+                          422);
+                  }
+    }
     public function store(Request $request){
         
         try{
