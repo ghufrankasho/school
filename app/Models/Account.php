@@ -12,7 +12,7 @@ class Account extends  Authenticatable implements JWTSubject
 {
     use HasFactory;
     protected $fillable = [
-         'email', 'password',
+         'email', 'password','name','type'
     ];
    /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -38,6 +38,8 @@ class Account extends  Authenticatable implements JWTSubject
      *
      * @var array
      */
+    
+   
     protected $hidden = [
         'password', 'remember_token',
     ];

@@ -34,7 +34,7 @@ Route::group([  'middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::post('/register', [AuthController::class,'register']);
     Route::get('/logout',  [AuthController::class,'logout']);
     Route::post('/refresh',  [AuthController::class,'refresh']);
-    Route::post('/update',  [AuthController::class,'update'] );
+    Route::post('/reset_password',  [AuthController::class,'reset_password'] );
 });
 Route::controller(UserController::class)->prefix('user')->group(function (){
     
@@ -114,4 +114,10 @@ Route::controller(ExampController::class)->prefix('examp')->group(function (){
  
 });
  
- 
+// Route::get('/view-clear', function() {
+//     $exitCode = Artisan::call('cache:clear');
+//     $exitCode = Artisan::call('view:clear');
+//     $exitCode = Artisan::call('config:cache');
+
+//     return '<h1>View cache cleared</h1>';
+// });

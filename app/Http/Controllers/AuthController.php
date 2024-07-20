@@ -21,7 +21,10 @@ class AuthController extends Controller
         $validator=Validator::make($request->all(),[
             
             'email'=>'required|string|email|unique:accounts',
-            'password'=>'required|string|confirmed|min:6'
+            'password'=>'required|string|confirmed|min:6',
+            'name'=>'required|string',
+            'type'=>'required|in:1,2,3'// 1=> user  ,2=>teacher , 3=>secretary
+        
         ]);
 
         if($validator->fails()){
@@ -119,6 +122,38 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'old_password' => 'required|string',
             'new_password' => 'required|string|confirmed|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 400);
+        }
+
+        $user = auth()->user();
+
+        if (Hash::check($request->old_password, $user->password)) {
+            $user->update([
+                'password' => bcrypt($request->new_password),
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Password changed successfully',
+            ]);
+        } 
+        else {
+            return response()->json([
+                'status' => false,
+                'errors' => 'Old password is incorrect',
+            ], 400);
+        }
+    }
+    public function forget_password(Request $request){
+        $validator = Validator::make($request->all(), [
+            'email'=>'required|email|exists:accounts,email',
         ]);
 
         if ($validator->fails()) {

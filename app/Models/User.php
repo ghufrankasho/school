@@ -23,14 +23,11 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Account::class);
     }
-    public function student_chats()
+    public function  chats()
     {
-        return $this->hasMany(Chat::class,'student_id','id');
+        return $this->hasMany(Chat::class);
     }
-    public function teacher_chats()
-    {
-        return $this->hasMany(Chat::class,'teacher_id','id');
-    }
+    
     public function notifications()
     {
         return $this->hasMany(Notification::class);
