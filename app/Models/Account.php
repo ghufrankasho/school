@@ -7,9 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use App\Notifications\ResetPasswordNotification as note; // Add this line to import the notification class
 
-class Account extends  Authenticatable implements JWTSubject
+class Account extends Authenticatable implements CanResetPassword,JWTSubject
 {
+    use Notifiable;
     use HasFactory;
     protected $fillable = [
          'email', 'password','name','type'
@@ -39,7 +42,7 @@ class Account extends  Authenticatable implements JWTSubject
      * @var array
      */
     
-   
+     
     protected $hidden = [
         'password', 'remember_token',
     ];
