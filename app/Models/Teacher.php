@@ -17,10 +17,10 @@ class Teacher extends Model
     {
         return $this->belongsTo(Account::class);
     }
-    public function examps()
-    {
-        return $this->hasMany(Examp::class);
-    }
+    // public function examps()
+    // {
+    //     return $this->hasMany(Examp::class);
+    // }
     public function subject()
     {
         return $this->belongsTo(Subject::class);

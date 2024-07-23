@@ -18,6 +18,7 @@ class Reports extends Migration
         $table->string('name')->default(null);
         
         $table->foreignId('user_id')->constrained('users','id');
+        $table->foreignId('teacher_id')->constrained('teachers','id');
         
         $table->timestamps();
     });

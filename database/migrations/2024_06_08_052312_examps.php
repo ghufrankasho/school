@@ -17,7 +17,7 @@ class Examps extends Migration
             $table->id();
             $table->string('name')->default(null);
             $table->time('time')->default(null);
-            $table->foreignId('teacher_id')->constrained('teachers','id');
+            // $table->foreignId('teacher_id')->constrained('teachers','id');
             $table->timestamps();
         });
     }

@@ -12,10 +12,10 @@ class Examp extends Model
     public $fillable=['name','time'];
    
     
-    public function teacher()
-    {
-        return $this->belongsTo(teacher::class);
-    }
+    // public function teacher()
+    // {
+    //     return $this->belongsTo(teacher::class);
+    // }
     
     public function users_examps()
     {

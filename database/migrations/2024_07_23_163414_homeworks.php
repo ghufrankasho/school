@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class UsersExamps extends Migration
+class Homeworks extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,14 @@ class UsersExamps extends Migration
      */
     public function up()
     {
-        Schema::create('users_examps', function (Blueprint $table) {
-            
+        Schema::create('homeworks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users','id');
-            $table->foreignId('examp_id')->constrained('examps','id');
-            $table->integer('result')->default(0);
-            $table->integer('rate')->default(0);
+            $table->string('title');
+            $table->string('image');
+            $table->string('file');
+            $table->foreignId('teacher_id')->constrained('teachers','id');
+            $table->foreignId('type_section_id')->constrained('type_sections','id');
+           
             $table->timestamps();
         });
     }
@@ -31,6 +32,6 @@ class UsersExamps extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users_examps');
+        Schema::dropIfExists('homeworks');
     }
 }
