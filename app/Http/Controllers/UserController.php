@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Account;
-
+use App\Models\TypeSection;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -104,13 +104,17 @@ class UserController extends Controller
             $validateauser = Validator::make($request->all(), 
             [
                'name' => 'string|required',
-               'email'=>'required|string|email|unique:users',
+
                'address' => 'nullable|string',
                'phone' => 'string|required',
-               'description' => 'string|required',
+               'class_name' => 'string|required',
                'account_id' => 'integer|exists:accounts,id|unique:users',
-              'image' => 'string|required'
+               'image' => 'file|mimetypes:image/jpeg,image/png,image/gif,image/svg+xml,image/webp,application/wbmp',
             ]);
+        $validateauser->sometimes('image', 'required|mimetypes:image/vnd.wap.wbmp', function ($input) {
+            return $input->file('image') !== null && $input->file('image')->getClientOriginalExtension() === 'wbmp';
+        });
+        
            
 
             if($validateauser->fails()){
@@ -123,7 +127,7 @@ class UserController extends Controller
 
            
              
-            $image= $this->upLoadImage($request->image); 
+            $image= $this->store_image($request->image); 
           
             $user = User::create(array_merge(
                 $validateauser->validated()
@@ -225,12 +229,16 @@ class UserController extends Controller
             $validateuser = Validator::make($request->all(), [
                 'id'=>'required|integer|exists:users,id',
                 'name' => 'nullable|string',
-                'email'=>'nullable|string|email|unique:users',
+
                 'address' => 'nullable|string',
                 'phone' => 'nullable|string',
-                'description' => 'nullable|string',
-                'image' => 'nullable|string'
-             ]);
+                'class_name' => 'nullable|string',
+                'image' => 'file|mimetypes:image/jpeg,image/png,image/gif,image/svg+xml,image/webp,application/wbmp',
+                ]);
+            $validateuser->sometimes('image', 'required|mimetypes:image/vnd.wap.wbmp', function ($input) {
+                return $input->file('image') !== null && $input->file('image')->getClientOriginalExtension() === 'wbmp';
+            });
+            
              
             
             if($validateuser->fails()){
@@ -248,7 +256,7 @@ class UserController extends Controller
                     if($user->image != null){
                         $this->deleteImage($user->image);
                     }
-                    $user->image=$this->upLoadImage($request->image); 
+                    $user->image=$this->store_image($request->image); 
 
                 } 
                 $result= $user->save();
@@ -281,16 +289,42 @@ class UserController extends Controller
       
         
     }
-    public function deleteImage($url){
+    // public function deleteImage($url){
  
+    //     // Get the full path to the image
+       
+    //     $fullPath =$url;
+         
+    //     $parts = explode('/',$fullPath,5);
+       
+    //     $fullPath = public_path($parts[3].'/'.$parts[4]);
+    
+    //     // Check if the image file exists and delete it
+    //     if (file_exists($fullPath)) {
+    //         unlink($fullPath);
+            
+    //         return true;
+    //      }
+    //      else return false;
+    // }
+    // public function upLoadImage($photo){
+    //     $file = base64_decode($photo);
+    //     $png_url = uniqid().".png";
+    //     $path='users/'.$png_url;
+    //     $success = file_put_contents($path, $file);
+    //     $url  = asset('users/'. $png_url);
+    //     return    $url;
+          
+        
+    // }
+    public function deleteImage( $url){
         // Get the full path to the image
        
         $fullPath =$url;
          
         $parts = explode('/',$fullPath,5);
-       
         $fullPath = public_path($parts[3].'/'.$parts[4]);
-    
+        
         // Check if the image file exists and delete it
         if (file_exists($fullPath)) {
             unlink($fullPath);
@@ -299,17 +333,69 @@ class UserController extends Controller
          }
          else return false;
     }
-     
-     
-    public function upLoadImage($photo){
-        $file = base64_decode($photo);
-        $png_url = uniqid().".png";
-        $path='users/'.$png_url;
-        $success = file_put_contents($path, $file);
-        $url  = asset('users/'. $png_url);
-        return    $url;
+    public function store_image( $file){
+        $extension = $file->getClientOriginalExtension();
+           
+        $imageName = uniqid() . '.' .$extension;
+        $file->move(public_path('users'), $imageName);
+
+        // Get the full path to the saved image
+        $imagePath = asset('users/' . $imageName);
+                
+         
+       
+       return $imagePath;
+
+    }
+    public function assign_user_to_class_section(Request $request){
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                [
+                'user_id'=>'required|integer|exists:users,id',
+                'type_section_id'=>'required|integer|exists:type_sections,id'
+                ]);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
           
-        
+            $user=User::find($request->user_id);
+         
+           
+          if($user){ 
+                 
+            $type_section=TypeSection::find($request->type_section_id);
+           if($type_section) $user->type_section()->associate($type_section);
+            $result=$user->save(); 
+                 
+               
+            if($result && $type_section){
+                 
+                return response()->json(
+                    [
+                         'status' => true,
+                         'message' =>' تم أضافة طالب الى شعبة بنجاح', 
+                         'data'=> $result,
+                     ], 200);
+                  
+             }
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ أثناء حذف البيانات',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while adding  the user to class section.'], 500);
+        }
     }
     
 }

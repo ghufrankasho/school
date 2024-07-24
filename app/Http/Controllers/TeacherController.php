@@ -8,6 +8,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Teacher;
 use App\Models\Account;
 use App\Models\Subject;
+use App\Models\Homework;
 class TeacherController extends Controller
 {
 public function index(){
@@ -322,6 +323,119 @@ public function upLoadImage($photo){
     $url  = asset('teachers/'. $png_url);
     return    $url;
       
+    
+}
+// ///////////////HOMEWORK FUNCTIONS////
+/**
+ * get homework that belongto teacher 
+ */
+public function index_hw(Request $request){
+    
+    try {  
+         
+ 
+        $validate = Validator::make( $request->all(),
+            ['teacher_id'=>'required|integer|exists:teachers,id']);
+        if($validate->fails()){
+        return response()->json([
+           'status' => false,
+           'message' => 'خطأ في التحقق',
+           'errors' => $validate->errors()
+        ], 422);}
+      
+        $homworks=Teacher::with('homeworks')->find($request->teacher_id);
+        if($homworks)
+         {  return response()->json(
+             [
+                     'status' => true,
+                     'message' => 'تم الحصول على البيانات بنجاح', 
+                     'data'=> $homworks,
+                 ],200);
+         }
+        else{
+             return response()->json(
+                     [  'status' => false,
+                     'message' => 'حدث خطأ أثناء جلب البيانات',
+                     'data' => null],
+                     422);
+             } }
+    catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    } 
+    catch (\Exception $e) {
+        return response()->json(['message' => 'An error occurred while getting this date.'], 500);
+    }
+}
+/**
+ * store homework 
+ */
+public function store_hm(Request $request){
+    
+    try{
+        
+        $validateateacher = Validator::make($request->all(), 
+        [
+            'text' => 'string|required',
+            'end_date'=>'required|date',
+            'teacher_id' => 'integer|exists:teachers,id|unique:teachers',
+            'type_section_id' => 'nullable|integer|exists:type_sections,id',
+            
+         ]);
+       
+    
+
+        if($validateateacher->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'خطأ في التحقق',
+                'errors' => $validateateacher->errors()
+            ], 422);
+        }
+         
+        $homwork = Homework::create(array_merge(
+            $validateateacher->validated()
+            
+            ));
+        
+        $teacher=Teacher::find($request->teacher_id);
+        
+        if($teacher)$homwork->teacher()->associate($teacher); 
+         
+        else{   return response()->json( [  'status' => false,
+            'message' => 'حدث خطأ أثناء ربط الاستاذ مع حسابه ',
+            'data' => null],
+               422);
+            } 
+        $subject=subject::find($request->subject_id);
+        if($subject)$teacher->subject()->associate($subject);  
+       
+        $result=$teacher->save();
+       if ($result){
+           
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'تم أضافة البيانات  بنجاح', 
+                    'data'=> $teacher,
+                ]
+             , 201);
+            }
+       else{
+            return response()->json( [  'status' => false,
+            'message' => 'حدث خطأ أثناء أضافة البيانات',
+            'data' => null],
+               422);
+            }
+
+    }
+    catch (\Throwable $th) {
+        return response()->json([
+            'status' => false,
+            'message' =>  $th->getMessage(),
+            // "حدث خطأ أثناء أضافة البيانات"
+        ], 500);
+    }
+   
     
 }
 }

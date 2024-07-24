@@ -33,6 +33,7 @@ Route::group([  'middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::post('/login',  [AuthController::class,'login']);
     Route::post('/register', [AuthController::class,'register']);
     Route::get('/logout',  [AuthController::class,'logout']);
+    Route::get('/profile',  [AuthController::class,'profile']);
     Route::post('/refresh',  [AuthController::class,'refresh']);
     Route::post('forgot_password', [AuthController::class, 'forgot_password']);
     Route::post('verify-reset-code', [AuthController::class, 'verify_reset_code']);
@@ -45,6 +46,7 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     Route::post('/add','store');
     Route::get('/block','block');
     Route::get('/delete','destroy');
+    Route::get('/assign_user_to_class_section','assign_user_to_class_section');
     Route::post('/update','update');
     // route belongto account
     
@@ -58,6 +60,7 @@ Route::controller(TeacherController::class)->prefix('teacher')->group(function (
     Route::get('/unblock','unblock');
     Route::post('/add','store');
     Route::get('/delete','destroy');
+    Route::get('/homework','index_hw');
     Route::post('/update','update');
    
 });

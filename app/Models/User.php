@@ -18,10 +18,14 @@ class User extends Authenticatable
      * @var array
      */
    
-    public $fillable=['description','email','phone','name'];
+    public $fillable=['address','class_name','phone','name'];
     public function account()
     {
         return $this->belongsTo(Account::class);
+    }
+    public function type_section()
+    {
+        return $this->belongsTo(TypeSection::class);
     }
     public function  chats()
     {
@@ -31,6 +35,10 @@ class User extends Authenticatable
     public function notifications()
     {
         return $this->hasMany(Notification::class);
+    }
+    public function homework()
+    {
+        return $this->hasMany(Homework::class);
     }
     public function payment()
     {

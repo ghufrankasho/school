@@ -2,19 +2,22 @@
 
 namespace App\Http\Controllers;
 use App\Models\Subject;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 class SubjectController extends Controller
 {  
 public function index(){
-        $subjects=subject::get();
-        if($subjects)
+    
+       $subjects=subject::get();
+       if($subjects)
         {  return response()->json(
-          [
-                'status' => true,
-                'message' => 'تم الحصول على البيانات بنجاح', 'data'=> $subjects,
-            ],200);}
+            [
+                    'status' => true,
+                    'message' => 'تم الحصول على البيانات بنجاح', 'data'=> $subjects,
+                ],200);
+        }
        else{
             return response()->json(
                     [  'status' => false,
@@ -22,7 +25,7 @@ public function index(){
                     'data' => null],
                     422);
             }
-    }
+}
 public function store(Request $request){
     
     try{
@@ -214,5 +217,6 @@ public function show(Request $request){
     }
     
 }
+
  
 }

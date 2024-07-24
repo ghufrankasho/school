@@ -18,10 +18,13 @@ class Users extends Migration
             $table->string('name');
             $table->string('image')->default(null);
             $table->string('phone')->default(null);
-            $table->boolean('block')->default(false);
-            $table->string('email')->unique();
-            $table->string('description')->default(null);
+            $table->boolean('block')->default(true);
+            $table->integer('grading')->default(0);
+            $table->string('address')->default(null);
             $table->foreignId('account_id')->constrained('accounts','id');
+            $table->string('class_name');
+            $table->foreignId('type_section_id')->constrained('type_sections','id')->default(null);
+           
             $table->timestamps();
         });
     }

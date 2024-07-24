@@ -13,6 +13,10 @@ class Teacher extends Model
         
         return $this->hasMany(ProgramLesson::class);
     }
+    public function homeworks(){
+        
+        return $this->hasMany(Homework::class);
+    }
     public function account()
     {
         return $this->belongsTo(Account::class);
