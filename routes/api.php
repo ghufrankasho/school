@@ -124,7 +124,7 @@ Route::controller(HomeworkController::class)->prefix('homework')->group(function
     // Route::get('/','index');
     Route::post('/add','store');
     Route::get('/delete','destroy');
-    // Route::post('/update','update');
+    Route::post('/add_hw_to_users','add_hw_to_users');
  
  
 });

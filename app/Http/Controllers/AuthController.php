@@ -116,9 +116,9 @@ class AuthController extends Controller
     }
     public function profile(){
         $account=auth()->user();
-        if($account->type==1)$account=Account::with('user')->find($account->id);
-        if($account->type==2)$account=Account::with('teacher')->find($account->id);
-        return response()->json($account);
+        if($account->type==1)$result=User::where('account_id',$account->id)->with('homework','notifications')->first();
+        if($account->type==2)$result=Account::with('teacher')->find($account->id);
+        return response()->json($result);
     }
     public function refresh(){
 

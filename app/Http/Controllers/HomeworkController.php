@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Homework;
 use App\Models\teacher;
-use App\Models\Type;
+use App\Models\User;
 use App\Models\TypeSection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 
 class HomeworkController extends Controller
 {
-    public function index(){
+public function index(){
         $homeworks=homework::get();
         return response()->json(
             $homeworks
@@ -57,7 +57,11 @@ public function store(Request $request){
              , 201);
             }
        else{
-            return response()->json('حدث خطأ أثناء أضافة البيانات', 422);
+        return response()->json(
+            [  'status' => false,
+            'message' => 'حدث خطأ أثناء أضافة البيانات',
+            'data' => null],
+            422);
             }
 
     }
@@ -172,4 +176,66 @@ public function destroy($id){
   
     
 // }
+public function add_hw_to_users(Request $request){
+    try {  
+         
+       
+        $validate = Validator::make( $request->all(),
+            ['homework_id'=>'required|integer|exists:homework,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',]);
+            
+        if($validate->fails()){
+        return response()->json([
+           'status' => false,
+           'message' => 'خطأ في التحقق',
+           'errors' => $validate->errors()
+        ], 422);}
+      
+        $homework=homework::find($request->homework_id);
+     
+    //    return  $homework;
+      if($homework){ 
+            $ids= $request->user_ids;
+            
+            $userIdsArray = explode(',', $ids[0]);
+            
+            // Convert the array elements to integers (if needed)
+             $userIdsArray = array_map('intval', $userIdsArray);
+             foreach($userIdsArray as $id){
+                $user=User::find($id);
+                 
+                  if($user)$homework->users()->attach($user); 
+                  
+             }
+             $result= $homework->users()->get();
+             
+       
+     
+        if($result){ 
+           
+            return response()->json(
+                [
+                    'status' => true,
+                    'message' => 'تم أضافة البيانات  بنجاح', 
+                    'data'=> $homework,
+                ]
+             , 201);
+        }
+        }
+        return response()->json(
+            [  'status' => false,
+            'message' => 'حدث خطأ أثناء أضافة البيانات',
+            'data' => null],
+            422);
+      
+    }
+    catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    } 
+    catch (\Exception $e) {
+        return response()->json(['message' => 'An error occurred while adding the homework.'], 500);
+    }
+    
+}
 }
