@@ -13,11 +13,11 @@ class UserHomework extends Migration
      */
     public function up()
     {
-        Schema::create('users_homeworks', function (Blueprint $table) {
+        Schema::create('user_homework', function (Blueprint $table) {
             
             $table->id();
             $table->foreignId('user_id')->constrained('users','id');
-            $table->foreignId('homework_id')->constrained('homeworks','id');
+            $table->foreignId('homework_id')->constrained('homework','id');
             $table->integer('result')->default(0);
             $table->integer('rate')->default(0);
             $table->timestamps();
@@ -31,6 +31,6 @@ class UserHomework extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users_homeworks');
+        Schema::dropIfExists('user_homework');
     }
 }

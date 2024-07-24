@@ -102,14 +102,16 @@ public function store(Request $request){
         $validateateacher = Validator::make($request->all(), 
         [
             'name' => 'string|required',
-            'email'=>'required|string|email|unique:teachers',
-            'specilty' => 'nullable|string',
+             
             'phone' => 'string|required',
             'description' => 'string|required',
             'account_id' => 'integer|exists:accounts,id|unique:teachers',
             'subject_id' => 'integer|exists:subjects,id',
-            'image' => 'string|required'
-         ]);
+            'image' => 'file|mimetypes:image/jpeg,image/png,image/gif,image/svg+xml,image/webp,application/wbmp',
+        ]);
+    $validateateacher->sometimes('image', 'required|mimetypes:image/vnd.wap.wbmp', function ($input) {
+        return $input->file('image') !== null && $input->file('image')->getClientOriginalExtension() === 'wbmp';
+    });
        
     
 
@@ -297,16 +299,14 @@ public function update(Request $request){
   
     
 }
-public function deleteImage($url){
- 
+public function deleteImage( $url){
     // Get the full path to the image
    
     $fullPath =$url;
      
     $parts = explode('/',$fullPath,5);
-   
     $fullPath = public_path($parts[3].'/'.$parts[4]);
-
+    
     // Check if the image file exists and delete it
     if (file_exists($fullPath)) {
         unlink($fullPath);
@@ -315,16 +315,48 @@ public function deleteImage($url){
      }
      else return false;
 }
-public function upLoadImage($photo){
-    $file = base64_decode($photo);
-    $png_url = uniqid().".png";
-    $path='teachers/'.$png_url;
-    $success = file_put_contents($path, $file);
-    $url  = asset('teachers/'. $png_url);
-    return    $url;
+public function upLoadImage( $file){
+    $extension = $file->getClientOriginalExtension();
+       
+    $imageName = uniqid() . '.' .$extension;
+    $file->move(public_path('teachers'), $imageName);
+
+    // Get the full path to the saved image
+    $imagePath = asset('teachers/' . $imageName);
+            
+     
+   
+   return $imagePath;
+
+}
+// public function deleteImage($url){
+ 
+//     // Get the full path to the image
+   
+//     $fullPath =$url;
+     
+//     $parts = explode('/',$fullPath,5);
+   
+//     $fullPath = public_path($parts[3].'/'.$parts[4]);
+
+//     // Check if the image file exists and delete it
+//     if (file_exists($fullPath)) {
+//         unlink($fullPath);
+        
+//         return true;
+//      }
+//      else return false;
+// }
+// public function upLoadImage($photo){
+//     $file = base64_decode($photo);
+//     $png_url = uniqid().".png";
+//     $path='teachers/'.$png_url;
+//     $success = file_put_contents($path, $file);
+//     $url  = asset('teachers/'. $png_url);
+//     return    $url;
       
     
-}
+// }
 // ///////////////HOMEWORK FUNCTIONS////
 /**
  * get homework that belongto teacher 

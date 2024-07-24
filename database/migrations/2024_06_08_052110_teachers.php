@@ -18,8 +18,8 @@ class Teachers extends Migration
             $table->string('name');
             $table->string('image')->default(null);
             $table->string('phone')->default(null);
-            $table->string('specilty')->default(null);
-            $table->string('email')->unique();
+            // $table->string('specilty')->default(null);
+            // $table->string('email')->unique();
             $table->boolean('block')->default(false);
             $table->string('description')->default(null);
             $table->foreignId('account_id')->constrained('accounts','id');

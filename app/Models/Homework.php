@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Homework extends Model
 {
     use HasFactory;
-    public $fillable=['title','end_date'];
+    public $table='homework';
+    
+    public $fillable=['text','end_date'];
     public function users(){
         
         return $this->hasMany(User::class);

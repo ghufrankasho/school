@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ExampController;
+use App\Http\Controllers\HomeworkController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
@@ -118,7 +119,16 @@ Route::controller(ExampController::class)->prefix('examp')->group(function (){
  
  
 });
+Route::controller(HomeworkController::class)->prefix('homework')->group(function (){
+    
+    // Route::get('/','index');
+    Route::post('/add','store');
+    Route::get('/delete','destroy');
+    // Route::post('/update','update');
  
+ 
+});
+  
 // Route::get('/view-clear', function() {
 //     $exitCode = Artisan::call('cache:clear');
 //     $exitCode = Artisan::call('view:clear');
