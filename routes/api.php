@@ -49,6 +49,7 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     Route::get('/delete','destroy');
     Route::get('/assign_user_to_class_section','assign_user_to_class_section');
     Route::post('/update','update');
+    Route::post('/sendNotification','sendNotification');
     // route belongto account
     
     

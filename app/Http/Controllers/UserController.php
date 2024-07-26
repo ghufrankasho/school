@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Services\FirebaseService;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\TypeSection;
 use DateTime;
+use App\Notifications\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -397,5 +398,33 @@ class UserController extends Controller
             return response()->json(['message' => 'An error occurred while adding  the user to class section.'], 500);
         }
     }
+    public function sendNotification(Request $request)
+    {
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            // 'user_id' => 'required|exists:users,id',
+            'title' => 'required|string',
+            'message' => 'required|string',
+            'deviceToken' => 'required|string',
+        ]);
     
+        // Use dependency injection to get the FirebaseService instance
+        $firebaseService = app(FirebaseService::class);
+    
+        try {
+            // Send the notification
+            $result = $firebaseService->sendNotification($validatedData['deviceToken'], $validatedData['title'], $validatedData['message']);
+            
+            // Check if the result indicates success
+            return response()->json(['success' => 'Notification sent successfully.']);
+        } catch (\Exception $e) {
+            // Handle errors (e.g., logging)
+            return response()->json(['error' => 'Failed to send notification.'], 500);
+        }
+    }
+    
+  
+
+    
+
 }
