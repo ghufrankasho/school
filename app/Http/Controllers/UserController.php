@@ -104,7 +104,6 @@ class UserController extends Controller
               
             $validateauser = Validator::make($request->all(), 
             [
-               'name' => 'string|required',
                'fcm_token'=>'string|required',
                'address' => 'nullable|string',
                'phone' => 'string|required',
@@ -229,9 +228,7 @@ class UserController extends Controller
            
             $validateuser = Validator::make($request->all(), [
                 'id'=>'required|integer|exists:users,id',
-                'name' => 'nullable|string',
-
-                'address' => 'nullable|string',
+                                'address' => 'nullable|string',
                 'phone' => 'nullable|string',
                 'class_name' => 'nullable|string',
                 'image' => 'file|mimetypes:image/jpeg,image/png,image/gif,image/svg+xml,image/webp,application/wbmp',

@@ -18,7 +18,7 @@ class User extends Authenticatable
      * @var array
      */
    
-    public $fillable=['address','class_name','phone','name','fcm_token'];
+    public $fillable=['address','class_name','phone','fcm_token'];
     public function account()
     {
         return $this->belongsTo(Account::class);

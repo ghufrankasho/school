@@ -15,7 +15,7 @@ class Users extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+          
             $table->string('image')->default(null);
             $table->string('phone')->default(null);
             $table->boolean('block')->default(false);
