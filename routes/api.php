@@ -63,6 +63,8 @@ Route::controller(TeacherController::class)->prefix('teacher')->group(function (
     Route::get('/block','block');
     Route::get('/unblock','unblock');
     Route::post('/add','store');
+    // قبول او رفض teacher
+    Route::get('/accept','accept');
     Route::get('/delete','destroy');
     Route::get('/homework','index_hw');
     Route::post('/update','update');

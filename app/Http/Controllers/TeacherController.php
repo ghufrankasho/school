@@ -329,6 +329,53 @@ public function upLoadImage( $file){
    return $imagePath;
 
 }
+public function accept(Request $request)
+{
+    try {  
+        
+        $validate = Validator::make( $request->all(),
+            ['id'=>'required|integer|exists:teachers,id',
+            'accept'=>'required|boolean']);
+        if($validate->fails()){
+        return response()->json([
+           'status' => false,
+           'message' => 'خطأ في التحقق',
+           'errors' => $validate->errors()
+        ], 422);}
+      
+        $teacher=teacher::find($request->id);
+        
+      
+      if($teacher){ 
+            $account=$teacher->account;
+          
+            $account->is_accept=$request->accept;
+            $result= $account->save();
+        if($result){
+             
+            return response()->json(
+                [
+                     'status' => true,
+                     'message' =>' تمت العملية البيانات بنجاح', 
+                     'data'=> $teacher,
+                 ], 200);
+              
+         }
+         }
+ 
+         return response()->json(    
+             [  'status' => false,
+                'message' => 'حدث خطأ أثناء حذف البيانات',
+                'data' => null],
+             422);
+    }
+    catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    } 
+    catch (\Exception $e) {
+        return response()->json(['message' => 'An error occurred while deleting the teacher.'], 500);
+    }
+}
 // public function deleteImage($url){
  
 //     // Get the full path to the image

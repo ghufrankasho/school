@@ -437,10 +437,11 @@ class UserController extends Controller
           
             $user=User::find($request->id);
             
-           
+          
           if($user){ 
-                $account=Account::first($user->account_id);
-                $account->accept=$request->accept;
+                $account=$user->account;
+              
+                $account->is_accept=$request->accept;
                 $result= $account->save();
             if($result){
                  
