@@ -105,7 +105,7 @@ class UserController extends Controller
             $validateauser = Validator::make($request->all(), 
             [
                'name' => 'string|required',
-
+               'fcm_token'=>'string|required',
                'address' => 'nullable|string',
                'phone' => 'string|required',
                'class_name' => 'string|required',
@@ -402,18 +402,19 @@ class UserController extends Controller
     {
         // Validate the incoming request data
         $validatedData = $request->validate([
-            // 'user_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id',
             'title' => 'required|string',
             'message' => 'required|string',
-            'deviceToken' => 'required|string',
+            
         ]);
     
         // Use dependency injection to get the FirebaseService instance
+        $user=User::first($request->user_id);
         $firebaseService = app(FirebaseService::class);
     
         try {
             // Send the notification
-            $result = $firebaseService->sendNotification($validatedData['deviceToken'], $validatedData['title'], $validatedData['message']);
+            $result = $firebaseService->sendNotification($user->fcm_token, $validatedData['title'], $validatedData['message']);
             
             // Check if the result indicates success
             return response()->json(['success' => 'Notification sent successfully.']);
@@ -423,7 +424,52 @@ class UserController extends Controller
         }
     }
     
-  
+    public function accept(Request $request)
+    {
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                ['id'=>'required|integer|exists:users,id',
+                'accept'=>'required|boolean']);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
+          
+            $user=User::find($request->id);
+            
+           
+          if($user){ 
+                $account=Account::first($user->account_id);
+                $account->accept=$request->accept;
+                $result= $account->save();
+            if($result){
+                 
+                return response()->json(
+                    [
+                         'status' => true,
+                         'message' =>' تمت العملية البيانات بنجاح', 
+                         'data'=> $user,
+                     ], 200);
+                  
+             }
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ أثناء حذف البيانات',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
+        }
+    }
 
     
 

@@ -46,6 +46,8 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     Route::get('/unblock','unblock');
     Route::post('/add','store');
     Route::get('/block','block');
+    // قبول او رفض الطالب
+    Route::get('/accept','accept');
     Route::get('/delete','destroy');
     Route::get('/assign_user_to_class_section','assign_user_to_class_section');
     Route::post('/update','update');

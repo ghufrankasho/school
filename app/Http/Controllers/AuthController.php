@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail; 
 use App\Mail\ForgetPassword;
+use App\Models\Teacher;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 class AuthController extends Controller
@@ -94,12 +95,14 @@ class AuthController extends Controller
 
     }
     protected function createNewToken($token) {
+ 
         return response()->json([
             'access_token'=>$token,
             'token_type'=>'bearer',
             'expires_in'=>auth()->factory()->getTTL()*1200,
             'message'=>'Logged in successfully',
-            'user'=>auth()->user()
+            'user'=>auth()->user(),
+       
         ]);
 
 
@@ -115,9 +118,24 @@ class AuthController extends Controller
     }
     public function profile(){
         $account=auth()->user();
-        if($account->type==1)$result=User::where('account_id',$account->id)->with('homework','notifications')->first();
-        if($account->type==2)$result=Account::with('teacher')->find($account->id);
-        return response()->json($result);
+        if($account->is_accept)
+        {
+                if($account->type==1)$result=User::where('account_id',$account->id)->with('homework','notifications')->first();
+                if($account->type==2)$result=Teacher::where('account_id',$account->id)->first();
+                if(!$result->block)return response()->json($result);
+                else  return response()->json(    
+                    [  'status' => false,
+                    'message' => 'أنت   محظور في هذا التطبيق   الرجاء مراجعة المدير. ',
+                    'data' => null],
+                    422);
+         }
+         
+        return response()->json(    
+            [  'status' => false,
+               'message' => 'أنت غير مقبول بعد  الرجاء انتظار موافقة المدير. ',
+               'data' => null],
+            422);
+        
     }
     public function refresh(){
 

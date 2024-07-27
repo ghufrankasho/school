@@ -16,9 +16,9 @@ class Lessons extends Migration
         Schema::create('lessons', function (Blueprint $table) {
             $table->id();
             $table->string('name')->default(null);
-            $table->string('text')->default(null);
+            $table->string('file')->default(null);
             $table->string('image')->default(null);
-            $table->string('activity')->default(null);
+            $table->string('video')->default(null);
             $table->string('description')->default(null);
             $table->foreignId('type_id')->constrained('types','id');
             $table->foreignId('subject_id')->constrained('subjects','id')->onDelete('cascade');

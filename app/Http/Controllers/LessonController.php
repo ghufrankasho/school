@@ -34,8 +34,8 @@ public function store(Request $request){
         [
            'name' => 'string|required|unique:lessons',
            'description' => 'string|required',
-           'activity' => 'string|required',
-           'text' => 'string|required',
+           'video' => 'nullable|string',
+           'file' => 'nullable|string',
            'subject_id' => 'integer|exists:subjects,id',
            'type_id' => 'integer|exists:types,id',
            'image' => 'string|required'
@@ -59,7 +59,12 @@ public function store(Request $request){
             
             ));
         $lesson->image=$this->upLoadImage($request->image);  
-        
+        if($request->file !==null){
+            $lesson->file=$this->upLoadfile($request->file);  
+        }
+        if($request->video !==null){
+            $lesson->video=$this->upLoadvideo($request->video);  
+        }
         $subject=subject::find($request->subject_id);
         if( $subject)$lesson->subject()->associate($subject);  
         $type=type::find($request->type_id);
@@ -114,6 +119,12 @@ public function destroy(Request $request){
         if($lesson->image!=null){
             $this->deleteImage($lesson->image);
         } 
+        if($lesson->file!=null){
+            $this->deleteImage($lesson->file);
+        } 
+        if($lesson->video!=null){
+            $this->deleteImage($lesson->video);
+        } 
          //dissociate lesson from subject
          $subject=$lesson->subject()->first();
         if($subject){
@@ -165,8 +176,8 @@ public function update(Request $request){
            
             'name' => 'nullable|string|unique:lessons',
             'description' => 'nullable|string',
-            'activity' => 'nullable|string',
-            'text' => 'nullable|string',
+            'video' => 'nullable|string',
+            'file' => 'nullable|string',
             'subject_id' => 'nullable|integer|exists:subjects,id',
             'type_id' => 'nullable|integer|exists:types,id',
             'image' => 'nullable|string'
@@ -254,11 +265,29 @@ public function deleteImage($url){
      }
      else return false;
 }
- 
- 
 public function upLoadImage($photo){
     $file = base64_decode($photo);
     $png_url = uniqid().".png";
+    $path='lessons/'.$png_url;
+    $success = file_put_contents($path, $file);
+    $url  = asset('lessons/'. $png_url);
+    return    $url;
+      
+    
+}
+public function upLoadfile($file){
+    $file = base64_decode($file);
+    $png_url = uniqid().".pdf";
+    $path='lessons/'.$png_url;
+    $success = file_put_contents($path, $file);
+    $url  = asset('lessons/'. $png_url);
+    return    $url;
+      
+    
+}
+public function upLoadvideo($file){
+    $file = base64_decode($file);
+    $png_url = uniqid().".pdf";
     $path='lessons/'.$png_url;
     $success = file_put_contents($path, $file);
     $url  = asset('lessons/'. $png_url);
