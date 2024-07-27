@@ -204,7 +204,8 @@ public function assing_section_to_type(Request $request){
     
          
        if($type && $section){
-        
+           
+       
             $sections=$type->sections()->get();
             foreach($sections as $sect){
                 if($sect->id == $section->id){
@@ -217,8 +218,11 @@ public function assing_section_to_type(Request $request){
                         422); 
                 }
             }
+            
         
              $type->sections()->attach($section);
+             $type=Type::with('sections')->find($type->id);
+   
              $result=$type->save(); 
             if($result){
                 return response()->json(

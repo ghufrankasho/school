@@ -13,7 +13,7 @@ class Type extends Model
     
     public function sections(){
         
-        return $this->belongsToMany(Section::class,'type_sections');
+        return $this->belongsToMany(Section::class,'type_sections')->withPivot(['id','type_id','section_id']);
     }
     public function lessons(){
         

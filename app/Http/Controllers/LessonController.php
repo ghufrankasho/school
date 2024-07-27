@@ -287,7 +287,7 @@ public function upLoadfile($file){
 }
 public function upLoadvideo($file){
     $file = base64_decode($file);
-    $png_url = uniqid().".pdf";
+    $png_url = uniqid().".mp4";
     $path='lessons/'.$png_url;
     $success = file_put_contents($path, $file);
     $url  = asset('lessons/'. $png_url);
