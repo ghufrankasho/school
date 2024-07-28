@@ -395,8 +395,7 @@ class UserController extends Controller
             return response()->json(['message' => 'An error occurred while adding  the user to class section.'], 500);
         }
     }
-    public function sendNotification(Request $request)
-    {
+    public function sendNotification(Request $request){
         // Validate the incoming request data
         $validatedData = $request->validate([
             'user_id' => 'required|exists:users,id',
@@ -420,9 +419,7 @@ class UserController extends Controller
             return response()->json(['error' => 'Failed to send notification.'], 500);
         }
     }
-    
-    public function accept(Request $request)
-    {
+    public function accept(Request $request){
         try {  
             
             $validate = Validator::make( $request->all(),
