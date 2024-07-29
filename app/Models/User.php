@@ -48,6 +48,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Report::class,'student_id','id');
     }
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
     public function users_examps()
     {
         return $this->hasMany(UserExamp::class);

@@ -222,6 +222,47 @@ class UserController extends Controller
             return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
         }
     }
+    public function attendance(Request $request){
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                ['user_id'=>'required|integer|exists:users,id']);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
+          
+            $user=User::with('attendances')->find($request->user_id);
+         
+           
+          if($user){ 
+                 
+        
+                return response()->json(
+                    [
+                         'status' => true,
+                         'message' =>' تم أضافة البيانات بنجاح', 
+                         'data'=> $user,
+                     ], 200);
+                  
+             
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ جلب البيانات',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
+        }
+    }
     public function update(Request $request){
         try{
             

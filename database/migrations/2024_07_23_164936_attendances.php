@@ -13,10 +13,10 @@ class Attendances extends Migration
      */
     public function up()
     {
-        Schema::create('attenances', function (Blueprint $table) {
+        Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users','id');
-           
+            $table->date('attendance_day');
 
             $table->timestamps();
         });
@@ -29,6 +29,6 @@ class Attendances extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('attenances');
+        Schema::dropIfExists('attendances');
     }
 }

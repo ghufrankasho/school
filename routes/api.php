@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeworkController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SecretaryController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\UserController;
@@ -48,6 +49,7 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     Route::get('/block','block');
     // قبول او رفض الطالب
     Route::get('/accept','accept');
+    Route::get('/attendance','attendance');
     Route::get('/delete','destroy');
     Route::get('/assign_user_to_class_section','assign_user_to_class_section');
     Route::post('/update','update');
@@ -131,6 +133,15 @@ Route::controller(HomeworkController::class)->prefix('homework')->group(function
     Route::get('/delete','destroy');
     Route::post('/add_hw_to_users','add_hw_to_users');
  
+ 
+});
+Route::controller(SecretaryController::class)->prefix('secretary')->group(function (){
+    
+    Route::get('/add_users_attendance','add_users_attendance');
+    // Route::post('/add','store');
+    // Route::get('/show','show');
+    // Route::get('/delete','destroy');
+    // Route::post('/update','update');
  
 });
   
