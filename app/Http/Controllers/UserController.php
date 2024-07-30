@@ -307,6 +307,47 @@ class UserController extends Controller
             return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
         }
     }
+    public function user_hw(Request $request){
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                ['user_id'=>'required|integer|exists:users,id']);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
+          
+            $user= User::find($request->user_id);
+         
+          
+          if($user){ 
+                 
+        
+                return response()->json(
+                    [
+                         'status' => true,
+                         'message' =>' تم الحصول على الوظائف بنجاح', 
+                         'data'=> $user->homework,
+                     ], 200);
+                  
+             
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ جلب الوظائف',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'حدث خطأ جلب الوظائف',], 500);
+        }
+    }
     public function user_start_examp(Request $request){
         try {  
             
@@ -394,7 +435,7 @@ class UserController extends Controller
                 return response()->json(
                     [
                          'status' => true,
-                         'message' =>' لقد  بدأت المذاكرة  بنجاح', 
+                         'message' =>'  تم الحصول على دروس الطالب بنجاح', 
                          'data'=>$lessons,
                      ], 200);
              }
@@ -404,7 +445,7 @@ class UserController extends Controller
      
              return response()->json(    
                  [  'status' => false,
-                    'message' => 'حدث خطأ بدأ المذاكرة ',
+                    'message' => 'حدث خطأ بدأ الحصول على دروس الطالب ',
                     'data' => null],
                  422);
         }

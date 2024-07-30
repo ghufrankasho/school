@@ -397,7 +397,7 @@ public function rate_student(Request $request)
         $user=User::find($request->user_id);
       
       if($teacher && $user){ 
-            $user=$user->grading=$request->grading;
+            $user->grading=$request->grading;
             $result=$user->save();
            
         if($result){

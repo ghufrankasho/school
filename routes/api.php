@@ -49,6 +49,7 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     Route::get('/block','block');
     // قبول او رفض الطالب
     Route::get('/accept','accept');
+    Route::get('/user_hw','user_hw');
     Route::get('/user_start_examp','user_start_examp');
     Route::get('/user_lessons','user_lessons');
     Route::get('/attendance','attendance');
