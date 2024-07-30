@@ -12,7 +12,7 @@ use App\Http\Controllers\SecretaryController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\UserController;
- 
+use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Models\Employee;
@@ -31,6 +31,9 @@ use App\Models\Employee;
 // Route::middleware('auth:api')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+ 
+Route::get('/send-notification', [PushNotificationController::class, 'sendPushNotification']);
 Route::group([  'middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::post('/login',  [AuthController::class,'login']);
     Route::post('/register', [AuthController::class,'register']);

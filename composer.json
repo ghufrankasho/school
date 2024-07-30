@@ -13,6 +13,7 @@
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "kawankoding/laravel-fcm": "^0.2.9",
+        "kreait/firebase-php": "^5.26",
         "kreait/laravel-firebase": "^3.4",
         "laravel/framework": "^8.0",
         "laravel/tinker": "^2.0",

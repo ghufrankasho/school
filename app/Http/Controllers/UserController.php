@@ -9,7 +9,7 @@ use App\Models\Notification;
 use App\Models\Type;
 use App\Models\TypeSection;
 use DateTime;
-use App\Notifications\UserNotification;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -646,7 +646,7 @@ class UserController extends Controller
         $firebaseService = app(FirebaseService::class);
         if($user){
             
-            $notification->account()->associate($user);
+            $notification->user()->associate($user);
             $notification->save();
             try {
                 // Send the notification
