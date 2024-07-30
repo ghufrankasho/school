@@ -9,6 +9,8 @@ use App\Models\Teacher;
 use App\Models\Account;
 use App\Models\Subject;
 use App\Models\Homework;
+use App\Models\User;
+
 class TeacherController extends Controller
 {
 public function index(){
@@ -374,6 +376,53 @@ public function accept(Request $request)
     } 
     catch (\Exception $e) {
         return response()->json(['message' => 'An error occurred while deleting the teacher.'], 500);
+    }
+}
+public function rate_student(Request $request)
+{
+    try {  
+        
+        $validate = Validator::make( $request->all(),
+            ['teacher_id'=>'required|integer|exists:teachers,id',
+            'user_id'=>'required|integer|exists:users,id',
+            'grading'=>'required|integer|min:0|max:100']);
+        if($validate->fails()){
+        return response()->json([
+           'status' => false,
+           'message' => 'خطأ في التحقق',
+           'errors' => $validate->errors()
+        ], 422);}
+      
+        $teacher=teacher::find($request->teacher_id);
+        $user=User::find($request->user_id);
+      
+      if($teacher && $user){ 
+            $user=$user->grading=$request->grading;
+            $result=$user->save();
+           
+        if($result){
+             
+            return response()->json(
+                [
+                     'status' => true,
+                     'message' =>' تم تقييم الطالب  بنجاح', 
+                     'data'=> $user,
+                 ], 200);
+              
+         }
+         }
+ 
+         return response()->json(    
+             [  'status' => false,
+                'message' => 'حدث خطأ أثناء تقييم الطالب ',
+                'data' => null],
+             422);
+    }
+    catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    } 
+    catch (\Exception $e) {
+        return response()->json(['message' =>  'حدث خطأ أثناء تقييم الطالب '], 500);
     }
 }
 // public function deleteImage($url){

@@ -5,6 +5,7 @@ use App\Services\FirebaseService;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\Examp;
+use App\Models\Type;
 use App\Models\TypeSection;
 use DateTime;
 use App\Notifications\UserNotification;
@@ -344,7 +345,56 @@ class UserController extends Controller
                     [
                          'status' => true,
                          'message' =>' لقد  بدأت المذاكرة  بنجاح', 
-                         'data'=> $$user->examps,
+                         'data'=> $user->examps,
+                     ], 200);
+             }
+                  
+             
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ بدأ المذاكرة ',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
+        }
+    }
+    public function user_lessons(Request $request){
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                [
+                    'user_id'=>'required|integer|exists:users,id',
+                    
+                ]);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
+          
+            $user= User::find($request->user_id);
+         
+           $type_section=TypeSection::find($user->type_section_id);
+          if($type_section && $user){ 
+            $type=Type::find($type_section->type_id);
+            $lessons=$type->lessons;
+             
+             
+            
+             if($lessons){
+                return response()->json(
+                    [
+                         'status' => true,
+                         'message' =>' لقد  بدأت المذاكرة  بنجاح', 
+                         'data'=>$lessons,
                      ], 200);
              }
                   

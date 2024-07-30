@@ -50,6 +50,7 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     // قبول او رفض الطالب
     Route::get('/accept','accept');
     Route::get('/user_start_examp','user_start_examp');
+    Route::get('/user_lessons','user_lessons');
     Route::get('/attendance','attendance');
     Route::get('/examps','examps');
     Route::get('/delete','destroy');
@@ -67,6 +68,7 @@ Route::controller(TeacherController::class)->prefix('teacher')->group(function (
     Route::get('/block','block');
     Route::get('/unblock','unblock');
     Route::post('/add','store');
+    Route::post('/rate_student','rate_student');
     // قبول او رفض teacher
     Route::get('/accept','accept');
     Route::get('/delete','destroy');
