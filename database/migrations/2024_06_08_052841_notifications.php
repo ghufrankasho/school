@@ -15,7 +15,8 @@ class Notifications extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->string('text')->default(null);
+            $table->string('title')->default(null);
+            $table->string('message')->default(null);
             $table->foreignId('user_id')->constrained('users','id');
             $table->foreignId('teacher_id')->constrained('teachers','id');
             $table->timestamps();

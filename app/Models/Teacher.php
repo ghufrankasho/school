@@ -31,5 +31,9 @@ class Teacher extends Model
     {
         return $this->belongsTo(Subject::class);
     }
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
 
 }

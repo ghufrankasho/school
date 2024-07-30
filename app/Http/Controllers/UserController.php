@@ -5,6 +5,7 @@ use App\Services\FirebaseService;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\Examp;
+use App\Models\Notification;
 use App\Models\Type;
 use App\Models\TypeSection;
 use DateTime;
@@ -589,27 +590,37 @@ class UserController extends Controller
     }
     public function sendNotification(Request $request){
         // Validate the incoming request data
-        $validatedData = $request->validate([
+        $validateauser = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'title' => 'required|string',
             'message' => 'required|string',
             
         ]);
-    
-        // Use dependency injection to get the FirebaseService instance
-        $user=User::first($request->user_id);
-        $firebaseService = app(FirebaseService::class);
-    
-        try {
-            // Send the notification
-            $result = $firebaseService->sendNotification($user->fcm_token, $validatedData['title'], $validatedData['message']);
+        $notification = Notification::create(array_merge(
+            $validateauser->validated()
             
-            // Check if the result indicates success
-            return response()->json(['success' => 'Notification sent successfully.']);
-        } catch (\Exception $e) {
-            // Handle errors (e.g., logging)
-            return response()->json(['error' => 'Failed to send notification.'], 500);
+            ));
+        // Use dependency injection to get the FirebaseService instance
+        $user=User::find($request->user_id);
+        $firebaseService = app(FirebaseService::class);
+        if($user){
+            
+            $notification->account()->associate($user);
+            $notification->save();
+            try {
+                // Send the notification
+                $result = $firebaseService->sendNotification($user->fcm_token, 'title', 'message');
+                
+                // Check if the result indicates success
+                return response()->json(['success' => 'Notification sent successfully.']);
+            } catch (\Exception $e) {
+                // Handle errors (e.g., logging)
+                return response()->json(['error' => 'Failed to send notification.'], 500);
+            }
         }
+     
+    
+       
     }
     public function accept(Request $request){
         try {  
