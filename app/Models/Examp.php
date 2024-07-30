@@ -9,7 +9,7 @@ use Symfony\Component\Console\Question\Question;
 class Examp extends Model
 {
     use HasFactory;
-    public $fillable=['name','time'];
+    public $fillable=['name','time','day'];
    
     
     // public function teacher()
@@ -17,9 +17,9 @@ class Examp extends Model
     //     return $this->belongsTo(teacher::class);
     // }
     
-    public function users_examps()
+    public function type_section()
     {
-        return $this->hasMany(UserExamp::class);
+        return $this->belongsTo(TypeSection::class);
     }
     public function questions()
     {

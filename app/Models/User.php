@@ -52,9 +52,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Attendance::class);
     }
-    public function users_examps()
+    public function  examps()
     {
-        return $this->hasMany(UserExamp::class);
+        return $this->belongsToMany(Examp::class,'users_examps',);
     }
      
 }

@@ -49,7 +49,9 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     Route::get('/block','block');
     // قبول او رفض الطالب
     Route::get('/accept','accept');
+    Route::get('/user_start_examp','user_start_examp');
     Route::get('/attendance','attendance');
+    Route::get('/examps','examps');
     Route::get('/delete','destroy');
     Route::get('/assign_user_to_class_section','assign_user_to_class_section');
     Route::post('/update','update');

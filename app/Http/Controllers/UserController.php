@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Services\FirebaseService;
 use App\Models\User;
 use App\Models\Account;
+use App\Models\Examp;
 use App\Models\TypeSection;
 use DateTime;
 use App\Notifications\UserNotification;
@@ -243,7 +244,7 @@ class UserController extends Controller
                 return response()->json(
                     [
                          'status' => true,
-                         'message' =>' تم أضافة البيانات بنجاح', 
+                         'message' =>' تم الحصول على البيانات بنجاح', 
                          'data'=> $user,
                      ], 200);
                   
@@ -253,6 +254,106 @@ class UserController extends Controller
              return response()->json(    
                  [  'status' => false,
                     'message' => 'حدث خطأ جلب البيانات',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
+        }
+    }
+    public function examps(Request $request){
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                ['user_id'=>'required|integer|exists:users,id']);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
+          
+            $user= User::find($request->user_id);
+         
+           $examps=Examp::where('type_section_id',$user->type_section_id)->get();
+          if($examps){ 
+                 
+        
+                return response()->json(
+                    [
+                         'status' => true,
+                         'message' =>' تم الحصول على البيانات بنجاح', 
+                         'data'=> $examps,
+                     ], 200);
+                  
+             
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ جلب البيانات',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
+        }
+    }
+    public function user_start_examp(Request $request){
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                [
+                    'user_id'=>'required|integer|exists:users,id',
+                    'examp_id'=>'required|integer|exists:examps,id'
+                ]);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
+          
+            $user= User::find($request->user_id);
+         
+           $examp=Examp::find($request->examp_id);
+          if($examp && $user){ 
+                 
+            $userExamps=$user->examps()->get();
+            foreach($userExamps as $userExamp){
+                if($userExamp->examp_id == $examp->id){
+                    return response()->json(
+                        [
+                             'status' => true,
+                             'message' =>' أنت قد قدمت أو مازلت تقدم هذذ المذاكرة', 
+                             'data'=> $userExamps,
+                         ], 200); 
+                }
+            }
+            $user->examps()->attach($examp);
+            $result= $user->save();
+            
+             if($result){
+                return response()->json(
+                    [
+                         'status' => true,
+                         'message' =>' لقد  بدأت المذاكرة  بنجاح', 
+                         'data'=> $$user->examps,
+                     ], 200);
+             }
+                  
+             
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ بدأ المذاكرة ',
                     'data' => null],
                  422);
         }

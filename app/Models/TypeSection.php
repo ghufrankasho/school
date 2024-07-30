@@ -16,4 +16,7 @@ class TypeSection extends Model
     public function homeworks(){
         return $this->hasMany(Homework::class,'type_section_id');
     }
+    public function examps(){
+        return $this->hasMany(Examp::class,'type_section_id');
+    }
 }

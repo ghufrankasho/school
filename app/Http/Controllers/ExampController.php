@@ -6,23 +6,40 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use App\Models\Examp;
+use App\Models\TypeSection;
 use App\Models\Teacher;
 class ExampController extends Controller
 {
-public function index(){
+    public function index(){
         $examps=examp::get();
-        return response()->json(
-            $examps
-            ,200);
-}
-public function store(Request $request){
+        if($examps){
+            return response()->json(
+                [
+                      'status' => true,
+                      'message' => 'تم الحصول على البيانات بنجاح', 
+                      'data'=> $examps,
+                  ],200);
+                }
+             else{
+                  return response()->json(
+                          [  'status' => false,
+                          'message' => 'حدث خطأ أثناء جلب البيانات',
+                          'data' => null],
+                          422);
+                  }
+    }
+    public function store(Request $request){
     
     try{
         
         $validateaexamp = Validator::make($request->all(), 
         [
-           'name' => 'string|required|unique:examps',
-           'teacher_id' => 'integer|exists:teachers,id|unique:examps',
+           'name' => 'string|required',
+           'time' => 'date_format:H:i|required',
+           'day' => 'date|required',
+           'type_section_id' => 'integer|required|exists:type_sections,id',
+           
+          
            
         ]);
     
@@ -39,17 +56,23 @@ public function store(Request $request){
             $validateaexamp->validated()
             
             ));
-        $teacher=teacher::find($request->teacher_id);
-        $examp->teacher()->associate($teacher);    
-        $result=$examp->save();
+            $TypeSection=TypeSection::find($request->type_section_id);
+            $result=$examp->type_section()->associate($TypeSection);
+            $examp->save();
        if ($result){
            
             return response()->json(
-             'تم أضافة البيانات  بنجاح'
+                   [ 'status' => true,
+                    'message' => 'تم أضافة البيانات  بنجاح', 
+                    'data'=> $examp,]
              , 201);
             }
        else{
-            return response()->json('حدث خطأ أثناء أضافة البيانات', 422);
+           return response()->json(
+                [  'status' => false,
+                'message' => 'حدث خطأ أثناء أضافة البيانات',
+                'data' => null],
+                 422);
             }
 
     }
@@ -81,8 +104,8 @@ public function destroy($id){
        
       if($examp){ 
         
-        $users_examps= $examp->users_examps()->get();
-        if($users_examps){
+        $examps_examps= $examp->examps_examps()->get();
+        if($examps_examps){
             return response()->json("you can not delete this examp becase is student need this eaxmp informations", 422); 
         }
         //delete all questions related to this eaxmp

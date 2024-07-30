@@ -26,9 +26,9 @@ public function store(Request $request){
         [
            'text' => 'string|required',
            'end_date' => 'date|required',
-           'type_section_id' => 'integer|required|exists:teachers,id',
+           'type_section_id' => 'integer|required|exists:type_sections,id',
            
-           'teacher_id' => 'integer|required|exists:type_sections,id',
+           'teacher_id' => 'integer|required|exists:teachers,id',
            
         ]);
     
