@@ -93,10 +93,7 @@ public function destroy($id){
        
       if($homework){ 
         
-        $users= $homework->users()->get();
-        if($users){
-            return response()->json("you can not delete this homework becase is student need this eaxmp informations", 422); 
-        }
+        
         
         //dissociate this homework from teacher
         $teacher= $homework->teacher()->first();

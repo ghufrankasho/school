@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
 class UserController extends Controller
 {
     public function index(){
-        $users=User::get();
+        $users=User::latest()->get();
         if($users){
             return response()->json(
                 [
@@ -107,7 +107,7 @@ class UserController extends Controller
               
             $validateauser = Validator::make($request->all(), 
             [
-               'fcm_token'=>'string|required',
+               'fcm_token'=>'string|nullable',
                'address' => 'nullable|string',
                'phone' => 'string|required',
                'class_name' => 'string|required',

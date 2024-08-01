@@ -15,9 +15,14 @@ class Payments extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('amount')->default(null);
-            $table->foreignId('user_id')->constrained('users','id');
-            $table->timestamps();
+            $table->integer('amount')->unsigned()->nullable(true);
+            $table->date('date')->nullable(true);
+           
+           
+            $table->string('title')->nullable(true);
+            $table->enum('type',['0','1','2','3'])->nullable(true);
+            //['activity','exapm','monthly_installment','trip']
+           $table->timestamps();
         });
     }
 

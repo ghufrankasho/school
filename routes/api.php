@@ -7,7 +7,7 @@ use App\Http\Controllers\ExampController;
 use App\Http\Controllers\HomeworkController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProgramController;
-use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SecretaryController;
 use App\Http\Controllers\TypeController;
 use App\Http\Controllers\SectionController;
@@ -140,6 +140,15 @@ Route::controller(HomeworkController::class)->prefix('homework')->group(function
     Route::post('/add','store');
     Route::get('/delete','destroy');
     Route::post('/add_hw_to_users','add_hw_to_users');
+ 
+ 
+});
+Route::controller(PaymentController::class)->prefix('payment')->group(function (){
+    
+    Route::get('/','index');
+    Route::post('/add','store');
+    Route::get('/studnet_payment','studnet_payment');
+    // Route::post('/add_hw_to_users','add_hw_to_users');
  
  
 });

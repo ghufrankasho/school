@@ -40,9 +40,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Homework::class,'user_homework');
     }
-    public function payment()
+    public function payments()
     {
-        return $this->hasMany(Payment::class);
+        return $this->belongsToMany(Payment::class,'user_payments');
     }
     public function reports()
     {

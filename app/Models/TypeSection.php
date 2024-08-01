@@ -19,4 +19,7 @@ class TypeSection extends Model
     public function examps(){
         return $this->hasMany(Examp::class,'type_section_id');
     }
+    public function users(){
+        return $this->hasMany(User::class,'type_section_id');
+    }
 }
