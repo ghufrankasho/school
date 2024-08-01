@@ -148,7 +148,7 @@ Route::controller(PaymentController::class)->prefix('payment')->group(function (
     Route::get('/','index');
     Route::post('/add','store');
     Route::get('/studnet_payment','studnet_payment');
-    // Route::post('/add_hw_to_users','add_hw_to_users');
+    Route::post('/pay','pay');
  
  
 });

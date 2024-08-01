@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use App\Models\TypeSection;
 use App\Models\User;
+use Stripe\Stripe;
+use Stripe\Charge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -138,6 +140,53 @@ class PaymentController extends Controller
         } 
         catch (\Exception $e) {
             return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
+        }
+    }
+    public function pay(Request $request)
+    {
+        
+        $validateapayment = Validator::make($request->all(), 
+        [
+           
+        //    'title' => 'nullable|string',
+        //    'date' => 'date|required',
+        //    'type'=>'required|in:0,1,2,3',   //['activity,0','exapm,1','monthly_installment,2','trip,3']
+           'user_id' => 'integer|required|exists:users,id',
+           'payment_id' => 'integer|required|exists:payments,id',
+           'amount' => 'integer|min:0|max:1000000|required',
+        ]);
+        
+        if($validateapayment->fails()){
+            return response()->json([
+                'status' => false,
+                'message' => 'خطأ في التحقق',
+                'errors' => $validateapayment->errors()
+            ], 422);
+        }
+        $user=User::find($request->user_id);
+        if($user){
+            $user->payments()->updateExistingPivot($request->payment_id,['is_paid'=>1]);
+        }
+       
+
+       
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        try {
+            $charge = Charge::create([
+                'amount' => $request->amount, // Amount in cents
+                'currency' => 'usd',
+                'source' => $request->stripeToken,
+                'description' => 'Test payment from Laravel Stripe Integration'
+            ]);
+
+            if($charge){
+                
+            }
+            return response()->json(['message' => 'Payment successful!'], 200);
+        } catch (\Exception $ex) {
+            return response()->json(['error' => 'Error! ' . $ex->getMessage()], 500);
         }
     }
 }
