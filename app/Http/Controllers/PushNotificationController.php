@@ -34,11 +34,15 @@ class PushNotificationController extends Controller
             
             $notification->user()->associate($user);
             $notification->save();
+            
          $firebase = (new Factory)
-            ->withServiceAccount('C:\Users\Mokas\OneDrive\Desktop\Baraa\school\config\firebase_credentials.json');
+            ->withServiceAccount('C:\Users\Mokas\OneDrive\Desktop\Baraa\school\config\credentials.json');
 
+         
         $messaging = $firebase->createMessaging();
-
+        
+        $message = CloudMessage::withTarget('topic', 'global') ;
+        
         $message = CloudMessage::fromArray([
             'notification' => [
                 'title' => $request->title,
@@ -50,5 +54,7 @@ class PushNotificationController extends Controller
         $messaging->send($message);
 
         return response()->json(['message' => 'Push notification sent successfully']);
-    }}
+    
+    }
+}
 }

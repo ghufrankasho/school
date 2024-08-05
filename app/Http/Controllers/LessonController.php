@@ -295,4 +295,44 @@ public function upLoadvideo($file){
       
     
 }
+public function show(Request $request){
+    try {  
+        
+        
+        
+        $validate = Validator::make( $request->all(),
+            ['subject_id'=>'required|integer|exists:subjects,id']);
+        if($validate->fails()){
+        return response()->json([
+           'status' => false,
+           'message' => 'خطأ في التحقق',
+           'errors' => $validate->errors()->first()
+        ], 422);}
+   
+    
+        $subject=subject::with('lessons')->find($request->subject_id);
+       
+     
+      if($subject){ 
+        return response()->json(
+            [
+                  'status' => true,
+                  'message' => 'تم الحصول على البيانات بنجاح', 
+                  'data'=> $subject,
+              ],200);
+        } 
+             
+
+        return response()->json(['message'=>" حدث خطأ أثناء عملية جلب البيانات "], 422);
+    }
+    catch (ValidationException $e) {
+        return response()->json(['errors' => $e->errors()], 422);
+    } 
+    catch (\Exception $e) {
+        return response()->json(['message' =>$e
+        //  'حدث خطأ أثناء عملية جلب البيانات'
+        ], 
+         500);
+    }
+}
 }

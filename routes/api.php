@@ -122,6 +122,7 @@ Route::controller(LessonController::class)->prefix('lesson')->group(function (){
     Route::post('/add','store');
     Route::get('/delete','destroy');
     Route::post('/update','update');
+    Route::get('/show','show');
    
 });
 
