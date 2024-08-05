@@ -9,6 +9,7 @@ use Symfony\Component\Console\Question\Question;
 class Examp extends Model
 {
     use HasFactory;
+    protected $table = 'examps';
     public $fillable=['name','time','day'];
    
     
@@ -21,8 +22,8 @@ class Examp extends Model
     {
         return $this->belongsTo(TypeSection::class);
     }
-    public function questions()
+    public function quest()
     {
-        return $this->hasMany(Question::class);
+        return $this->hasMany(Quest::class);
     }
 }

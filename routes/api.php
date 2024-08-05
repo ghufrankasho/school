@@ -129,8 +129,10 @@ Route::controller(ExampController::class)->prefix('examp')->group(function (){
     
     Route::get('/','index');
     Route::post('/add','store');
+    Route::post('/add_question','store_question');
     Route::get('/delete','destroy');
     Route::post('/update','update');
+    Route::get('/show','show');
  
  
 });

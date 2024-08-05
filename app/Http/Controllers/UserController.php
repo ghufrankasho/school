@@ -427,6 +427,7 @@ class UserController extends Controller
            $type_section=TypeSection::find($user->type_section_id);
           if($type_section && $user){ 
             $type=Type::find($type_section->type_id);
+             
             $lessons=$type->lessons;
              
              
