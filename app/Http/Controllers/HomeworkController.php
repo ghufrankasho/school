@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Homework;
+use App\Models\Message;
 use App\Models\teacher;
 use App\Models\User;
 use App\Models\TypeSection;
@@ -53,7 +54,9 @@ public function store(Request $request){
        if ($result){
            
             return response()->json(
-             'تم أضافة البيانات  بنجاح'
+           ['status'=>true, 
+            'message'=> 'تم أضافة البيانات  بنجاح',
+            'data'=>$homework]
              , 201);
             }
        else{

@@ -113,21 +113,25 @@ class PaymentController extends Controller
                'errors' => $validate->errors()
             ], 422);}
           
-            $user=User::with('payments')->find($request->user_id);
-         
+            $user=User::find($request->user_id);
+            $payments=$user->payments;
            
-          if($user){ 
+        //   if($user){ 
                  
-        
+        // foreach($payments as $payment){
+        //   $d= $payment->pivot;
+        //   return [$d->is_paid];
+          
+        // }
                 return response()->json(
                     [
                          'status' => true,
                          'message' =>' تم الحصول على البيانات بنجاح', 
-                         'data'=> $user,
+                         'data'=> $payments,
                      ], 200);
                   
              
-             }
+             
      
              return response()->json(    
                  [  'status' => false,

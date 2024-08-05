@@ -706,7 +706,9 @@ class UserController extends Controller
             return response()->json(['errors' => $e->errors()], 422);
         } 
         catch (\Exception $e) {
-            return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
+            return response()->json([
+                'errors' => $e,
+                'message' => 'An error occurred while deleting the user.'], 500);
         }
     }
 
