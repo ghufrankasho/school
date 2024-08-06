@@ -138,6 +138,7 @@ Route::controller(ExampController::class)->prefix('examp')->group(function (){
     Route::post('/add_question','store_question');
     Route::get('/delete','destroy');
     Route::post('/update','update');
+    Route::post('/set_result_examp','set_result_examp');
     Route::get('/show','show');
  
  

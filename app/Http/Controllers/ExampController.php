@@ -7,6 +7,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use App\Models\Examp;
 use App\Models\TypeSection;
+use App\Models\User;
 use App\Models\Quest;
 use App\Models\Teacher;
 class ExampController extends Controller
@@ -282,6 +283,62 @@ class ExampController extends Controller
             //  'حدث خطأ أثناء عملية جلب البيانات'
             ], 
              500);
+        }
+    }
+    public function  set_result_examp(Request $request){
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                [
+                    'user_id'=>'required|integer|exists:users,id',
+                    'examp_id'=>'required|integer|exists:examps,id',
+                    'result'=>'required|integer|min:0|max:100'
+                ]);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
+          
+            $user= User::find($request->user_id);
+         
+           $examp=Examp::find($request->examp_id);
+          if($examp && $user){ 
+                 
+            $user->examps()->updateExistingPivot($request->examp_id,['result'=>$request->result]);
+            
+            }
+       
+            $result= $user->save();
+            
+             if($result){
+                $pivotData = $user->examps()->wherePivot('examp_id', $request->examp_id)->first()->pivot;
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'تم أضافة النتيجة  بنجاح',
+                    'data' => [
+                        // 'examp' => $examp,
+                        'pivot' => $pivotData
+                    ]
+                ], 200);
+             }
+                  
+             
+             
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ بدأ المذاكرة ',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
         }
     }
 }

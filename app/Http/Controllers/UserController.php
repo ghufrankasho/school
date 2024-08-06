@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\Examp;
 use App\Models\Notification;
 use App\Models\Report;
+use App\Models\Section;
 use App\Models\Type;
 use App\Models\TypeSection;
 use App\Models\UserSubject;
@@ -20,13 +21,28 @@ class UserController extends Controller
 {
     
     public function index(){
-        $users=User::latest()->get();
+        $users=User::with('account','type_section')->latest()->get();
+        $result=array();
+        
+        foreach($users as $user){
+            if(! in_array($user,$result)  ){
+                $section=Section::find($user->type_section->section_id);
+               
+                $user->name=$user->account->name;
+                $user->section_name=$section->name;
+                $user->account=null;
+                $user->type_section=null;
+                array_push($result , $user);
+                
+            }
+        }
+        
         if($users){
             return response()->json(
                 [
                       'status' => true,
                       'message' => 'تم الحصول على البيانات بنجاح', 
-                      'data'=> $users,
+                      'data'=> $result,
                   ],200);
                 }
              else{
@@ -414,8 +430,9 @@ class UserController extends Controller
           if($examp && $user){ 
                  
             $userExamps=$user->examps()->get();
+            
             foreach($userExamps as $userExamp){
-                if($userExamp->examp_id == $examp->id){
+                if($userExamp->id === $examp->id){
                     return response()->json(
                         [
                              'status' => true,
@@ -432,7 +449,7 @@ class UserController extends Controller
                     [
                          'status' => true,
                          'message' =>' لقد  بدأت المذاكرة  بنجاح', 
-                         'data'=> $user->examps,
+                         'data'=> $examp,
                      ], 200);
              }
                   
@@ -452,6 +469,7 @@ class UserController extends Controller
             return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
         }
     }
+   
     public function user_lessons(Request $request){
         try {  
             
