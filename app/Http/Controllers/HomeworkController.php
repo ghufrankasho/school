@@ -122,60 +122,6 @@ public function destroy($id){
         return response()->json(['message' => 'An error occurred while deleting the homework.'], 500);
     }
 }
-// public function update(Request $request, $id){
-//     try{
-//         $input = [ 'id' =>$id ];
-//         $validate = Validator::make( $input,
-//         ['id'=>'required|integer|exists:homeworks,id']);
-//         if($validate->fails()){
-//                 return response()->json([
-//                     'status' => false,
-//                     'message' => 'خطأ في التحقق',
-//                     'errors' => $validate->errors()
-//                 ], 422);
-//             }
-            
-//         $homework=homework::find($id);
-        
-//         $validatehomework = Validator::make($request->all(), [
-//             'name' => 'nullable|string',
-            
-//           ]);
-       
-//         if($validatehomework->fails()){
-//             return response()->json([
-//                 'status' => false,
-//                 'message' => 'خطأ في التحقق',
-//                 'errors' => $validatehomework->errors()
-//             ], 422);
-//         }
-//         if($homework){  
-//             $homework->update($validatehomework->validated());
-          
-//             $homework->save();
-            
-//             return response()->json(
-//                 'تم تعديل البيانات  بنجاح'
-//                 , 200);
-//         }
-        
-//         return response()->json([
-//             'status' => false,
-//             'message' =>  'فشلت عملية التعديل ',
-//             'data'=> null
-//             ], 422);
-        
-
-//     }
-//     catch (\Throwable $th) {
-//         return response()->json([
-//         'status' => false,
-//         'message' => $th->getMessage()
-//         ], 500);
-//     }
-  
-    
-// }
 public function add_hw_to_users(Request $request){
     try {  
          

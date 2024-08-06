@@ -14,7 +14,7 @@ class Homework extends Model
     
     public function users(){
         
-        return $this->belongsToMany(User::class,'user_homework');
+        return $this->belongsToMany(User::class,'user_homework')->withPivot('answer');
     }
     public function teacher(){
         

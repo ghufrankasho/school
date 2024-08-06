@@ -120,7 +120,7 @@ class AuthController extends Controller
         $account=auth()->user();
         if($account->is_accept)
         {
-                if($account->type==1)$result=User::where('account_id',$account->id)->with('homework','notifications')->first();
+                if($account->type==1)$result=User::where('account_id',$account->id)->with('homework','notifications','account')->first();
                 if($account->type==2)$result=Teacher::where('account_id',$account->id)->first();
                 if(!$result->block)return response()->json($result);
                 else  return response()->json(    

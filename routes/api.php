@@ -50,6 +50,7 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     Route::get('/unblock','unblock');
     Route::post('/add','store');
     Route::get('/block','block');
+    Route::get('/solve_hw','solve_hw');
     // قبول او رفض الطالب
     Route::get('/accept','accept');
     Route::get('/user_hw','user_hw');

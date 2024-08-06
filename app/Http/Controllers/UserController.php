@@ -16,6 +16,7 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+    
     public function index(){
         $users=User::latest()->get();
         if($users){
@@ -280,7 +281,7 @@ class UserController extends Controller
           
             $user= User::find($request->user_id);
          
-           $examps=Examp::where('type_section_id',$user->type_section_id)->get();
+           $examps=Examp::with('quest')->where('type_section_id',$user->type_section_id)->get();
           if($examps){ 
                  
         
@@ -329,6 +330,48 @@ class UserController extends Controller
                     [
                          'status' => true,
                          'message' =>' تم الحصول على الوظائف بنجاح', 
+                         'data'=> $user->homework,
+                     ], 200);
+                  
+             
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ جلب الوظائف',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'حدث خطأ جلب الوظائف',], 500);
+        }
+    }
+    public function solve_hw(Request $request){
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                ['user_id'=>'required|integer|exists:users,id',
+            'homework_id'=>'required|integer|exists:homework,id',]);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
+          
+            $user= User::find($request->user_id);
+         
+            
+          if($user){ 
+                 
+           $result= $user->homework()->updateExistingPivot($request->homework_id,['answer'=>1]);
+                return response()->json(
+                    [
+                         'status' => true,
+                         'message' =>' تم حل الوظيفة  بنجاح', 
                          'data'=> $user->homework,
                      ], 200);
                   
@@ -522,34 +565,6 @@ class UserController extends Controller
       
         
     }
-    // public function deleteImage($url){
- 
-    //     // Get the full path to the image
-       
-    //     $fullPath =$url;
-         
-    //     $parts = explode('/',$fullPath,5);
-       
-    //     $fullPath = public_path($parts[3].'/'.$parts[4]);
-    
-    //     // Check if the image file exists and delete it
-    //     if (file_exists($fullPath)) {
-    //         unlink($fullPath);
-            
-    //         return true;
-    //      }
-    //      else return false;
-    // }
-    // public function upLoadImage($photo){
-    //     $file = base64_decode($photo);
-    //     $png_url = uniqid().".png";
-    //     $path='users/'.$png_url;
-    //     $success = file_put_contents($path, $file);
-    //     $url  = asset('users/'. $png_url);
-    //     return    $url;
-          
-        
-    // }
     public function deleteImage( $url){
         // Get the full path to the image
        

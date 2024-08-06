@@ -18,7 +18,7 @@ class UserHomework extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users','id');
             $table->foreignId('homework_id')->constrained('homework','id');
-            $table->integer('result')->default(0);
+            $table->boolean('answer')->default(false);
             $table->integer('rate')->default(0);
             $table->timestamps();
         });

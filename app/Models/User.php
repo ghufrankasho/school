@@ -38,7 +38,7 @@ class User extends Authenticatable
     }
     public function homework()
     {
-        return $this->belongsToMany(Homework::class,'user_homework');
+        return $this->belongsToMany(Homework::class,'user_homework')->withPivot('answer');
     }
     public function payments()
     {
