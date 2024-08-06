@@ -10,7 +10,7 @@ class Examp extends Model
 {
     use HasFactory;
     protected $table = 'examps';
-    public $fillable=['name','time','day'];
+    public $fillable=['name','time','day','duration'];
    
     
     // public function teacher()

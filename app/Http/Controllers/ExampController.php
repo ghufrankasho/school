@@ -37,6 +37,7 @@ class ExampController extends Controller
             [
             'name' => 'string|required',
             'time' => 'date_format:H:i|required',
+            'duration' => 'date_format:H:i|required',
             'day' => 'date|required',
             'type_section_id' => 'integer|required|exists:type_sections,id',
             
@@ -197,7 +198,7 @@ class ExampController extends Controller
             'option2' => 'string|required',
             'option3' => 'string|required',
             'answer' => 'string|required',
-        
+            'mark' => 'integer|required',
             'examp_id' => 'integer|required|exists:examps,id',
             
             ]);

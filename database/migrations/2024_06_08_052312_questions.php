@@ -20,6 +20,7 @@ class Questions extends Migration
             $table->string('option1')->default(null);
             $table->string('option2')->default(null);
             $table->string('option3')->default(null);
+            $table->integer('mark')->default(null);
             $table->foreignId('examp_id')->constrained('examps','id');
         
             $table->timestamps();
