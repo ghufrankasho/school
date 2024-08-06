@@ -46,7 +46,7 @@ class User extends Authenticatable
     }
     public function reports()
     {
-        return $this->hasMany(Report::class,'student_id','id');
+        return $this->hasMany(Report::class);
     }
     public function attendances()
     {
@@ -54,7 +54,10 @@ class User extends Authenticatable
     }
     public function  examps()
     {
-        return $this->belongsToMany(Examp::class,'users_examps',);
+        return $this->belongsToMany(Examp::class,'users_examps') ->withPivot('result', 'rate');
     }
-     
+    public function subjects()
+    {
+        return $this->belongsToMany(Subject::class,'user_subjects') ->withPivot('written_average', 'number_average', 'report_id');
+    }
 }

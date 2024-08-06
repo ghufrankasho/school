@@ -16,9 +16,11 @@ class Reports extends Migration
         Schema::create('reports', function (Blueprint $table) {
         $table->id();
         $table->string('name')->default(null);
-        
+        $table->date('date')->default(null);
+        $table->string('note')->default(null);
+         
         $table->foreignId('user_id')->constrained('users','id');
-        $table->foreignId('teacher_id')->constrained('teachers','id');
+         
         
         $table->timestamps();
     });

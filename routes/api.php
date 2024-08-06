@@ -49,8 +49,12 @@ Route::controller(UserController::class)->prefix('user')->group(function (){
     Route::get('/','index');
     Route::get('/unblock','unblock');
     Route::post('/add','store');
+    Route::post('/add_report','add_report');
     Route::get('/block','block');
+    Route::get('/get_reports','get_reports');
+    Route::get('/show_report','show_report');
     Route::get('/solve_hw','solve_hw');
+    Route::get('/user_subjects','user_subjects');
     // قبول او رفض الطالب
     Route::get('/accept','accept');
     Route::get('/user_hw','user_hw');

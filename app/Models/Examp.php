@@ -13,14 +13,18 @@ class Examp extends Model
     public $fillable=['name','time','day','duration'];
    
     
-    // public function teacher()
-    // {
-    //     return $this->belongsTo(teacher::class);
-    // }
+    public function users()
+    {
+        return $this->belongsToMany(User::class,'users_examps') ->withPivot('result', 'rate');
+    }
     
     public function type_section()
     {
         return $this->belongsTo(TypeSection::class);
+    }
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
     }
     public function quest()
     {

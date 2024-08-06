@@ -14,8 +14,16 @@ class Subject extends Model
     {
         return $this->hasMany(Lesson::class,'subject_id');
     }
+    public function examps()
+    {
+        return $this->hasMany(Examp::class,);
+    }
     public function teachers()
     {
         return $this->hasMany(Teacher::class);
+    }
+    public function users()
+    {
+        return $this->belongsToMany(User::class,'user_subjects') ->withPivot('written_average', 'number_average', 'report_id');
     }
 }

@@ -6,8 +6,10 @@ use App\Models\User;
 use App\Models\Account;
 use App\Models\Examp;
 use App\Models\Notification;
+use App\Models\Report;
 use App\Models\Type;
 use App\Models\TypeSection;
+use App\Models\UserSubject;
 use DateTime;
 
 use Illuminate\Http\Request;
@@ -727,7 +729,304 @@ class UserController extends Controller
                 'message' => 'An error occurred while deleting the user.'], 500);
         }
     }
-
+    public function user_subjects(Request $request){
+        try {  
+            
+            $validate = Validator::make( $request->all(),
+                [
+                    'user_id'=>'required|integer|exists:users,id',
+                    
+                ]);
+            if($validate->fails()){
+            return response()->json([
+               'status' => false,
+               'message' => 'خطأ في التحقق',
+               'errors' => $validate->errors()
+            ], 422);}
+          
+            $user= User::find($request->user_id);
+         
+           $type_section=TypeSection::find($user->type_section_id);
+          if($type_section && $user){ 
+            $type=Type::find($type_section->type_id);
+            $subjects=array();
+            $lessons=$type->lessons;
+            foreach($lessons as $lesson){
+                $subject=$lesson->subject;
+                if(! in_array($subject,$subjects)  ){
+                    array_push($subjects , $subject);
+                    
+                }
+            }
+             
+            
+        
+                return response()->json(
+                    [
+                         'status' => true,
+                         'message' =>'  تم الحصول على مواد الطالب بنجاح', 
+                         'data'=>$subjects,
+                     ], 200);
+             
+                  
+             
+             }
+     
+             return response()->json(    
+                 [  'status' => false,
+                    'message' => 'حدث خطأ بدأ الحصول على دروس الطالب ',
+                    'data' => null],
+                 422);
+        }
+        catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while deleting the user.'], 500);
+        }
+    }
+    // public function add_report(Request $request){
+    //     try {  
+            
+    //         $validate = Validator::make( $request->all(),
+    //             [
+    //                 'user_id'=>'required|integer|exists:users,id',
+    //                 'name'=>'required|string',
+    //                 'date'=>'date|required',
+    //                 'note'=>'required|string',
+                    
+    //             ]);
+    //         if($validate->fails()){
+    //            return response()->json([
+    //            'status' => false,
+    //            'message' => 'خطأ في التحقق',
+    //            'errors' => $validate->errors()
+    //             ], 422);
+    //         }
+            
+    //         $report = Report::create(array_merge(
+    //             $validate->validated()
+                
+    //             ));
+          
+    //         $user= User::find($request->user_id);
+    //         if($user){
+    //             $subjects=array();
+    //             $report->user()->associate($user);
+    //             $result=$report->save();
+                
+    //             $type_section=TypeSection::find($user->type_section_id);
+    //             if($type_section && $user){ 
+    //                 $type=Type::find($type_section->type_id);
+                   
+    //                 $lessons=$type->lessons;
+    //                 foreach($lessons as $lesson){
+    //                     $subject=$lesson->subject;
+    //                     if(! in_array($subject,$subjects)  ){ array_push($subjects , $subject);}
+    //                 }
+    //             }
+    //             if(count($subjects) >0){
+    //                 foreach($subjects as $subj){
+    //                    $examps= $type_section->examps();
+    //                    $user_examps=$user->examps
+    //                    return $examps;
+    //                 }
+    //             }
+            
+             
+            
+        
+    //             return response()->json(
+    //                 [
+    //                      'status' => true,
+    //                      'message' =>'  تم الحصول على مواد الطالب بنجاح', 
+    //                      'data'=>$subjects,
+    //                  ], 200);
+             
+                  
+             
+             
+     
+    //          return response()->json(    
+    //              [  'status' => false,
+    //                 'message' => 'حدث خطأ بدأ الحصول على دروس الطالب ',
+    //                 'data' => null],
+    //              422);
+    //     }}
+    //     catch (ValidationException $e) {
+    //         return response()->json(['errors' => $e->errors()], 422);
+    //     } 
+    //     catch (\Exception $e) {
+    //         return response()->json(['message' =>  $e
+    //         //'An error occurred while deleting the user.'
+    //     ],
+    //          500);
+    //     }
+    // }
     
+    public function add_report(Request $request) {
+        try {
+            // Validate input
+            $validate = Validator::make($request->all(), [
+                'user_id' => 'required|integer|exists:users,id',
+                'name' => 'required|string',
+                'date' => 'date|required',
+                'note' => 'required|string',
+            ]);
+    
+            if ($validate->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validate->errors()
+                ], 422);
+            }
+    
+            // Create the report
+            $report = Report::create($validate->validated());
+    
+            // Find the user
+            $user = User::find($request->user_id);
+            if ($user) {
+                $report->user()->associate($user);
+                $report->save();
+    
+                // Get the user's type section and related subjects
+                $type_section = $user->type_section;
+                if ($type_section) {
+                    $type = Type::find($type_section->type_id);
+                    if ($type) {
+                        $lessons = $type->lessons;
+                        $subjects = $lessons->pluck('subject')->unique();
+    
+                        $subjectsWithExams = [];
+                        foreach ($subjects as $subject) {
+                            // Get exams related to the user and subject
+                            $exams = $user->examps()
+                                          ->where('type_section_id', $type_section->id)
+                                          ->where('subject_id', $subject->id)
+                                          ->get();
+                       
+                            // Calculate averages
+                            $totalResult = $exams->sum('pivot.result');
+                            $examCount = $exams->count();
+                            $averageResult = $examCount > 0 ? $totalResult / $examCount : 0;
+                            // Determine the letter grade based on the average result
+                            $writtenAverage = $this->getGrade($averageResult);
 
+                            // Create user_subject entry with averages
+                            $userSubject = UserSubject::create([
+                                'user_id' => $user->id,
+                                'subject_id' => $subject->id,
+                                'report_id' => $report->id,
+                                'written_average' => $writtenAverage,
+                                'number_average' => $averageResult,
+                            ]);
+                           
+                            $userSubjects[] = $userSubject;
+                        }
+    
+                        // Include the user_subjects in the report
+                        
+    
+                        return response()->json([
+                            'status' => true,
+                            'message' => 'Subjects and exams retrieved successfully',
+                            'data' => $report->load('usersubjects')
+                        ], 200);
+                    }
+                }
+            }
+    
+            return response()->json([
+                'status' => false,
+                'message' => 'Error retrieving user subjects and exams',
+                'data' => null
+            ], 422);
+    
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+    protected function getGrade($averageResult) {
+        if ($averageResult >= 95) {
+            return 'A+';
+        } elseif ($averageResult >= 90) {
+            return 'A';
+        } elseif ($averageResult >= 80) {
+            return 'B';
+        } elseif ($averageResult >= 60) {
+            return 'C';
+        } else {
+            return 'F';
+        }
+    }
+    public function get_reports(Request $request){
+            // Validate input
+            $validate = Validator::make($request->all(), [
+                'user_id' => 'required|integer|exists:users,id',
+                
+            ]);
+    
+            if ($validate->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validate->errors()
+                ], 422);
+            }
+    
+            // Find the user
+            $user = User::with('reports')->find($request->user_id);
+            if($user){
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'User reports retrieved successfully',
+                    'data' =>$user 
+                ], 200);
+            }
+            
+            return response()->json([
+                'status' => false,
+                'message' => 'Error retrieving user report',
+                'data' => null
+            ], 422);
+    }
+    
+    public function show_report(Request $request){
+        // Validate input
+        $validate = Validator::make($request->all(), [
+            'user_id' => 'required|integer|exists:users,id',
+            'report_id' => 'required|integer|exists:reports,id',
+            
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation error',
+                'errors' => $validate->errors()
+            ], 422);
+        }
+
+        // Find the user
+        $report = report::with('userSubjects')->where('user_id',$request->user_id)->find($request->report_id);
+        if($report){
+
+            return response()->json([
+                'status' => true,
+                'message' => 'User report retrieved successfully',
+                'data' =>$report 
+            ], 200);
+        }
+        
+        return response()->json([
+            'status' => false,
+            'message' => 'Error retrieving user report',
+            'data' => null
+        ], 422);
+}
 }
