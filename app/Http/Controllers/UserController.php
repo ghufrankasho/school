@@ -22,7 +22,7 @@ class UserController extends Controller
 {
     
     public function index(){
-        $users=User::latest()->get();
+        $users=User::with('account')->latest()->get();
         $result=array();
         
         foreach($users as $user){
@@ -30,8 +30,8 @@ class UserController extends Controller
                 $user->name=$user->account->name;
                 if($user->account->type==1)
                { 
-                $section=Section::find($user->type_section->section_id);
-               
+                $Typesection=TypeSection::find($user->type_section_id);
+               $section=Section::find($Typesection->section_id);
                
                if($section) $user->section_name=$section->name;
                  }
