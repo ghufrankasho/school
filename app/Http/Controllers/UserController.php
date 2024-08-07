@@ -8,6 +8,7 @@ use App\Models\Examp;
 use App\Models\Notification;
 use App\Models\Report;
 use App\Models\Section;
+use App\Models\Subject;
 use App\Models\Type;
 use App\Models\TypeSection;
 use App\Models\UserSubject;
@@ -29,9 +30,8 @@ class UserController extends Controller
                 $section=Section::find($user->type_section->section_id);
                
                 $user->name=$user->account->name;
-                $user->section_name=$section->name;
-                $user->account=null;
-                $user->type_section=null;
+               if($section) $user->section_name=$section->name;
+                 
                 array_push($result , $user);
                 
             }
@@ -1033,7 +1033,10 @@ class UserController extends Controller
         // Find the user
         $report = report::with('userSubjects')->where('user_id',$request->user_id)->find($request->report_id);
         if($report){
-
+            foreach($report->userSubjects as $user_sub){
+                $subject=Subject::find($user_sub->subject_id);
+               if($subject) $user_sub->subject_name=$subject->name;
+            }
             return response()->json([
                 'status' => true,
                 'message' => 'User report retrieved successfully',
