@@ -47,6 +47,7 @@ Route::group([  'middleware' => 'api','prefix' => 'auth'], function ($router) {
 Route::controller(UserController::class)->prefix('user')->group(function (){
     
     Route::get('/','index');
+    // Route::get('/students','get_students');
     Route::get('/unblock','unblock');
     Route::post('/add','store');
     Route::post('/add_report','add_report');

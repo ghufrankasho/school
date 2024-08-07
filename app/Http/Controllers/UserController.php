@@ -22,16 +22,19 @@ class UserController extends Controller
 {
     
     public function index(){
-        $users=User::with('account','type_section')->latest()->get();
+        $users=User::latest()->get();
         $result=array();
         
         foreach($users as $user){
             if(! in_array($user,$result)  ){
+                $user->name=$user->account->name;
+                if($user->account->type==1)
+               { 
                 $section=Section::find($user->type_section->section_id);
                
-                $user->name=$user->account->name;
+               
                if($section) $user->section_name=$section->name;
-                 
+                 }
                 array_push($result , $user);
                 
             }
@@ -42,7 +45,7 @@ class UserController extends Controller
                 [
                       'status' => true,
                       'message' => 'تم الحصول على البيانات بنجاح', 
-                      'data'=> $result,
+                      'data'=> $users,
                   ],200);
                 }
              else{
@@ -53,6 +56,32 @@ class UserController extends Controller
                           422);
                   }
     }
+    // public function get_students(){
+    //     return "hhhhhj";
+    //     $users=User::with('account')->latest()->get();
+    //     return $users;
+    //    $result=array();
+    //     foreach($users as $user){
+    //         if($user->account->type==1){
+    //             array_push($result,$user);
+    //         }
+    //     }
+    //     if($users){
+    //         return response()->json(
+    //             [
+    //                   'status' => true,
+    //                   'message' => 'تم الحصول على البيانات بنجاح', 
+    //                   'data'=> $result,
+    //               ],200);
+    //             }
+    //          else{
+    //               return response()->json(
+    //                       [  'status' => false,
+    //                       'message' => 'حدث خطأ أثناء جلب البيانات',
+    //                       'data' => null],
+    //                       422);
+    //               }
+    // }
     public function block(Request $request){
         
         
